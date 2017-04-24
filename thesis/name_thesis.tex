@@ -1,0 +1,53 @@
+%*************************************************************
+% Master Project                                             *
+% Ing. Minerva Gabriela Vargas Gleason                       *
+% IAI Institute of Artificial Intelligence                 *
+% Universität Bremen                                         *
+%                                                            *
+% pdfLaTex                                                   *
+% Editor: TeXnicCenter                                       *
+%*************************************************************
+
+
+\input{kopf}
+\sffamily
+
+%\includeonly{Hauptteil}
+
+
+\begin{document}
+% Space above and below equations
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+
+\pagenumbering{alph}
+\include{titel}
+
+\cleardoublepage
+
+\pagestyle{scrheadings}
+\pagenumbering{Roman}
+
+\include{Indices} 
+%\include{abstract}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+% Kapitel
+\include{Introduction}
+\include{State_of_the_art}
+\include{Methodology}
+%\include{Evaluation}
+%\include{Results}
+%\include{Conclusion} 
+%\include{Ausblick} % Code execution
+
+\include{Appendix}
+
+%\automark{chapter}
+\bibliographystyle{plainnat}
+%\bibliographystyle{siam}
+\bibliography{Literatur}
+
+\end{document}

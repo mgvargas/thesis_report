@@ -1,0 +1,48 @@
+\BOOKMARK [0][]{chapter.1}{1 Introduction}{}% 1
+\BOOKMARK [1][-]{section.1.1}{1.1 Motivation}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{1.2 Contributions}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.3}{1.3 Structure of the thesis}{chapter.1}% 4
+\BOOKMARK [0][]{chapter.2}{2 Background \046 Related Job}{}% 5
+\BOOKMARK [1][-]{section.2.1}{2.1 Localization Algorithms \(if moving the base is required\)}{chapter.2}% 6
+\BOOKMARK [2][-]{subsection.2.1.1}{2.1.1 Markov Localization \(if required\)}{section.2.1}% 7
+\BOOKMARK [2][-]{subsection.2.1.2}{2.1.2 Monte Carlo Localization \(if required\)}{section.2.1}% 8
+\BOOKMARK [2][-]{subsection.2.1.3}{2.1.3 Google Cartographer}{section.2.1}% 9
+\BOOKMARK [1][-]{section.2.2}{2.2 Kinematic Modelling of a Robot}{chapter.2}% 10
+\BOOKMARK [1][-]{section.2.3}{2.3 Collision Environment}{chapter.2}% 11
+\BOOKMARK [1][-]{section.2.4}{2.4 Trajectory Planning}{chapter.2}% 12
+\BOOKMARK [2][-]{subsection.2.4.1}{2.4.1 Euclidean Space in Cartesian Coordinates}{section.2.4}% 13
+\BOOKMARK [2][-]{subsection.2.4.2}{2.4.2 Configuration Space \(C-space\)}{section.2.4}% 14
+\BOOKMARK [2][-]{subsection.2.4.3}{2.4.3 Task Space}{section.2.4}% 15
+\BOOKMARK [2][-]{subsection.2.4.4}{2.4.4 Motion Planning Algorithms}{section.2.4}% 16
+\BOOKMARK [3][-]{subsubsection.2.4.4.1}{2.4.4.1 Sampling-based motion planning}{subsection.2.4.4}% 17
+\BOOKMARK [3][-]{subsubsection.2.4.4.2}{2.4.4.2 Optimization-based motion planning}{subsection.2.4.4}% 18
+\BOOKMARK [1][-]{section.2.5}{2.5 Software}{chapter.2}% 19
+\BOOKMARK [2][-]{subsection.2.5.1}{2.5.1 ROS}{section.2.5}% 20
+\BOOKMARK [2][-]{subsection.2.5.2}{2.5.2 RViz}{section.2.5}% 21
+\BOOKMARK [2][-]{subsection.2.5.3}{2.5.3 Giskard}{section.2.5}% 22
+\BOOKMARK [2][-]{subsection.2.5.4}{2.5.4 Chili markers}{section.2.5}% 23
+\BOOKMARK [1][-]{section.2.6}{2.6 Robot Description}{chapter.2}% 24
+\BOOKMARK [0][]{chapter.3}{3 Methodology}{}% 25
+\BOOKMARK [1][-]{section.3.1}{3.1 Basics}{chapter.3}% 26
+\BOOKMARK [1][-]{section.3.2}{3.2 System architecture \(diagram\)}{chapter.3}% 27
+\BOOKMARK [1][-]{section.3.3}{3.3 Perception}{chapter.3}% 28
+\BOOKMARK [2][-]{subsection.3.3.1}{3.3.1 Object Database}{section.3.3}% 29
+\BOOKMARK [2][-]{subsection.3.3.2}{3.3.2 Grasping Poses}{section.3.3}% 30
+\BOOKMARK [2][-]{subsection.3.3.3}{3.3.3 RViz integration}{section.3.3}% 31
+\BOOKMARK [1][-]{section.3.4}{3.4 Motion Controller}{chapter.3}% 32
+\BOOKMARK [2][-]{subsection.3.4.1}{3.4.1 Simple 2 DOF controller}{section.3.4}% 33
+\BOOKMARK [2][-]{subsection.3.4.2}{3.4.2 Single goal}{section.3.4}% 34
+\BOOKMARK [2][-]{subsection.3.4.3}{3.4.3 Multiple goals}{section.3.4}% 35
+\BOOKMARK [2][-]{subsection.3.4.4}{3.4.4 Trajectory parametrization}{section.3.4}% 36
+\BOOKMARK [1][-]{section.3.5}{3.5 Trajectory evaluation}{chapter.3}% 37
+\BOOKMARK [2][-]{subsection.3.5.1}{3.5.1 One-hand Grasping}{section.3.5}% 38
+\BOOKMARK [2][-]{subsection.3.5.2}{3.5.2 Dual-hand Grasping}{section.3.5}% 39
+\BOOKMARK [1][-]{section.3.6}{3.6 Hardware and Software requirements}{chapter.3}% 40
+\BOOKMARK [0][]{appendix.A}{A Appendix}{}% 41
+\BOOKMARK [1][-]{section.A.1}{A.1 Github Repositories}{appendix.A}% 42
+\BOOKMARK [1][-]{section.A.2}{A.2 Code Execution}{appendix.A}% 43
+\BOOKMARK [2][-]{subsection.A.2.1}{A.2.1 Perception system}{section.A.2}% 44
+\BOOKMARK [2][-]{subsection.A.2.2}{A.2.2 Robot}{section.A.2}% 45
+\BOOKMARK [3][-]{subsubsection.A.2.2.1}{A.2.2.1 Target: Single Goal \(or One-hand grasping\)}{subsection.A.2.2}% 46
+\BOOKMARK [3][-]{subsubsection.A.2.2.2}{A.2.2.2 Target: Multiple goals \(or Two-hand grasping\)}{subsection.A.2.2}% 47
+\BOOKMARK [0][]{chapter*.3}{Bibliography}{}% 48

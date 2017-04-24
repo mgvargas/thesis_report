@@ -1,0 +1,278 @@
+%*************************************************************
+% Master Project                                             *
+% Ing. Minerva Gabriela Vargas Gleason                       *
+% IAI - Institute of Artificial Intelligence                 *
+% Universität Bremen                                         *
+%                                                            *
+% pdfLaTex                                                   *
+%*************************************************************
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Optionen zum Layout          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Dokumentenklasse (Koma Script) -----------------------------------------
+\documentclass[%
+   %draft,     % Entwurfsstadium
+   final,      % fertiges Dokument
+%%%% --- Schriftgr��e ---
+   12pt,
+   %smallheadings,    % kleine �berschriften
+   %normalheadings,   % normale �berschriften
+   %bigheadings,       % gro�e �berschriften
+%%%% === Seitengr��e ===
+   % letterpaper,
+   % legalpaper,
+   % executivepaper,
+   a4paper,
+   % a5paper,
+   % landscap,
+%%%% === Optionen f�r den Satzspiegel ===
+   %BCOR5mm,          % Zusaetzlicher Rand auf der Innenseite
+   %DIV11,            % Seitengroesse (siehe Koma Skript Dokumentation !)
+   %DIVcalc,         % automatische Berechnung einer guten Zeilenlaenge
+   %1.1headlines,     % Zeilenanzahl der Kopfzeilen
+   %headinclude,     % Kopf einbeziehen
+   %headexclude,      % Kopf nicht einbeziehen
+   %footinclude,     % Fuss einbeziehen
+   %footexclude,      % Fuss nicht einbeziehen
+   %mpinclude,       % Margin einbeziehen
+   %mpexclude,        % Margin nicht einbeziehen
+   pagesize,         % Schreibt die Papiergroesse in die Datei.
+                     % Wichtig fuer Konvertierungen
+%%%% === Layout ===
+   oneside,         % einseitiges Layout
+   %twoside,          % Seitenraender f�r zweiseitiges Layout
+   %onecolumn,        % Einspaltig
+   %twocolumn,       % Zweispaltig
+   %openany,         % Kapitel beginnen auf jeder Seite
+   openright,        % Kapitel beginnen immer auf der rechten Seite
+                     % (macht nur bei 'twoside' Sinn)
+   %cleardoubleplain,    % leere, linke Seite mit Seitenstil 'plain' 
+   cleardoublepage=empty,% leere, linke Seite mit Seitenstil 'empty'
+   titlepage,        % Titel als einzelne Seite ('titlepage' Umgebung)
+   %notitlepage,     % Titel in Seite integriert
+   captions=tableheading,
+%%%% --- Absatzeinzug ---
+   %                 % Absatzabstand: Einzeilig,
+   %parskip,         % Freiraum in letzter Zeile: 1em
+   %parskip*,        % Freiraum in letzter Zeile: Viertel einer Zeile
+   %parskip+,        % Freiraum in letzter Zeile: Drittel einer Zeile
+   %parskip-,        % Freiraum in letzter Zeile: keine Vorkehrungen
+   %                 % Absatzabstand: Halbzeilig
+   %halfparskip,     % Freiraum in letzter Zeile: 1em
+   %halfparskip*,    % Freiraum in letzter Zeile: Viertel einer Zeile
+   %halfparskip+,    % Freiraum in letzter Zeile: Drittel einer Zeile
+   %halfparskip,     % Freiraum in letzter Zeile: keine Vorkehrungen
+   %                 % Absatzabstand: keiner
+   parskip=false,    % Einger�ckt (Standard)
+%%%% --- Kolumnentitel ---
+   headsepline,      % Linie unter Kopfzeile
+   %headnosepline,   % keine Linie unter Kolumnentitel
+   footsepline,      % Linie �ber Fusszeile
+   %footnosepline,   % keine Linie unter Fussnote
+   plainfootsepline, % Linie �ber Fu�zeile auf "`leeren Seiten"'
+%%%% --- Kapitel ---
+   %chapterprefix,   % Ausgabe von 'Kapitel:'
+   %nochapterprefix,  % keine Ausgabe von 'Kapitel:'
+%%%% === Verzeichnisse (TOC, LOF, LOT, BIB) ===
+   %listof=totoc,      % Tabellen & Abbildungsverzeichnis ins Inhaltsverzeichnis
+   listof=notoc,	  % Tabellen & Abbildungsverzeichnis ins nicht ins Inhaltsverzeichnis
+   %idxtotoc,        % Index ins TOC
+   bibliography=totoc, % Bibliographie ins TOC
+   %bibtotocnumbered, % Bibliographie im TOC nummeriert
+   %liststotocnumbered, % Alle Verzeichnisse im TOC nummeriert      
+   toc=graduated,    % eingereuckte Gliederung
+   %tocleft,         % Tabellenartige TOC
+   listof=graduated,      % eingereuckte LOT, LOF
+   %listsleft,       % Tabellenartige LOT, LOF
+   %pointednumbers,  % �berschriftnummerierung mit Punkt, siehe DUDEN !
+   numbers=noenddot, % �berschriftnummerierung ohne Punkt, siehe DUDEN !
+   %openbib,         % alternative Formatierung des Literaturverzeichnisses
+%%%% === Matheformeln ===
+   %leqno,           % Formelnummern links
+   %fleqn,            % Formeln werden linksbuendig angezeigt
+]{scrreprt}%     Klassen: scrartcl, scrreprt, scrbook
+% -------------------------------------------------------------------------
+
+\usepackage{natbib} %For library
+\renewcommand{\bibname}{References}
+\renewcommand{\refname}{References}
+\usepackage{bm} % To write italic-bold text in formulas
+%\usepackage{subcaption} % Place figures side-by-side
+\usepackage{graphicx}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[latin1]{inputenc}
+\usepackage[english]{babel}
+\usepackage[automark]{scrpage2}
+\usepackage{epsfig}
+\usepackage{graphicx}  %F�r Grafiken
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb,amsfonts}
+\usepackage{mathptmx} %Sch�ne nicht Pixelige Times-Schrift
+%\usepackage{amsmath,amssymb,amsfonts}  % Wichtige Matheumgebungen
+\usepackage{fancybox}
+\usepackage{setspace}
+
+%--- F�r TPX -----
+\usepackage{ifpdf}
+\usepackage{pgf}
+%-----------------
+
+\usepackage{scrhack} %f�r das float-package im Komascript
+\usepackage{float} % f�r die Positionsangabe [H]	HERE!: hier, nirgendwo sonst...
+
+% Das Eindrücken am Absatzbeginn verhindern:
+\setlength{\parindent}{0pt}
+
+
+\usepackage{upgreek} % f�r nicht-kursiv griechische Symbole
+% \upphi = phi
+
+\usepackage{listings} % F�r Programmcodeumgebung \
+\renewcommand\lstlistingname{Source Code}   % Neue Bezeichnung f�r Listing
+%\renewcommand\lstlistlistingname{Source Code Directory}   % Neue Bezeichnung f�r Listings
+
+% Das Hyperref Packet !!!
+\usepackage[
+		pdftex,
+		pdftoolbar=true, hyperfootnotes=false,breaklinks=true,
+		pdfpagelabels=true,
+		bookmarks, bookmarksopen, bookmarksnumbered, bookmarksopenlevel=1,
+		pdfauthor={Minerva Vargas},
+		pdfsubject={Master Project},%
+		pdfkeywords={Bachelorarbeit, Innere-Punkte-Verfahren, Simplex-Algorithmus, Unterbestimmte Gleichungssysteme, Compressed Sensing,...},
+		pdftitle={Master Project, Minerva Vargas},
+		pdfstartview={FitH},
+		pdfborder={0 0 0},  %Farbe aller Linkumrandung auf Wei� gesetzt
+		plainpages=false]
+{hyperref}
+
+
+\usepackage{tabularx} %erstellt Zeilenumbruch in Tabellen bestimmter Gr��e: %\begin{tabularx}{\textwidth}{|c|c|X|c|} ...\end{tabularx}
+\usepackage{booktabs} %F�r dicke Linien in Tabellen, z.B. \toprule, \midrule, \cmidrule(lr){4-5} oder \bottomrule
+
+% Pseudo-Code:
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+% Schriftfamilie aller Gliederungs�berschriften �ndern
+\setkomafont{sectioning}{\rmfamily}
+\setcapindent{1em} % - Teilweise h�ngender Einzug bei Beschriftung von Abbildungen und Tabellen
+%\setkomafont{captionlabel}{\bfseries} % Tabellen & Abbildung Dick geschrieben
+%Legt die Einr�cktiefe der ersten Zeile f�r alle folgenden Abs�tze fest.
+\setlength{\parindent}{0cm}
+
+% Der Pfad zu den Grafiken, relativ zum Ordner wo das LaTex-Dokument liegt
+\graphicspath{{bilder/}}
+
+\setcounter{secnumdepth}{4} % Subsubsections nummerieren!!!
+\setcounter{tocdepth}{4}    % Subsubsections mit ins Inhaltsverzeichnis!!!
+
+
+%Seitenlayout f�r die Seiten auf denen ein neues Kapitel beginnt
+\usepackage{titlesec}
+\usepackage{sectsty}
+%--> Kapitel + Nummer + Trennlinie + Name + Trennlinie
+\titleformat{\chapter}[display]	% {command}[shape]
+  {\usekomafont{chapter}\Huge}	% format
+  {   										% label
+  \normalsize\MakeUppercase{\chaptertitlename} \Large \thechapter %\filright%
+  }%}
+  {1pt}										% sep (from chapternumber)
+  {\titlerule \vspace{0.0pc} \filright }   % {before}[after] (before chaptertitle and after)
+  [\vspace{0.8pt} \filright {\titlerule}]
+
+%Seitenlayout
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{23cm}
+\setlength{\oddsidemargin}{0.2cm}
+\setlength{\evensidemargin}{0.2cm}
+\addtolength{\topmargin}{-1cm}
+\renewcommand{\baselinestretch}{2}
+\setlength{\parskip}{1.3ex}
+\setlength{\headheight}{1.4\baselineskip}
+
+\pagestyle{scrheadings} 
+\ihead{}
+\chead{}
+\ohead{\rmfamily \small \headmark} 
+\ofoot[\rmfamily \small \pagemark]{\rmfamily \small \pagemark}
+\cfoot[]{}
+\ifoot[\\ \vspace{0.2cm} \psfig{figure=./ai_logo.png,height=1.2cm}]{\\ \psfig{figure=./ai_logo.png,height=1.2cm}} 
+
+
+%\usepackage{tikz}
+%\usetikzlibrary{calc}
+%\tikzset{offset/.style={to path={%
+%    -- ($(\tikztostart)!#1cm!(\tikztotarget)$)}},
+%         offset/.default=1}
+         
+%\usepackage{pgf-tikz}
+
+\usepackage{pgfplots}
+% this file ensures that all packages will be loaded so that TpX works properly.
+% it is based on TpX's helpfile.
+
+% comment unused packages below
+\usepackage{color}
+%\pdfoutput=0 % uncomment this to run PDFTeX in TeX mode
+\usepackage{ifpdf}
+\ifx\pdftexversion\undefined %if using TeX
+  \usepackage{graphicx}
+\else %if using PDFTeX
+  \usepackage{graphicx} %-- kann nicht kompellieren, keine ahnung woran es liegt \usepackage[pdftex]{graphicx}
+\fi
+
+\ifpdf %if using PDFTeX in PDF mode
+  \DeclareGraphicsExtensions{.pdf,.png,.mps}
+  \usepackage{pgf}
+  \usepackage{tikz}
+\else %if using TeX or PDFTeX in TeX mode
+  \usepackage{graphicx}
+  \DeclareGraphicsExtensions{.eps,.bmp}
+  \DeclareGraphicsRule{.emf}{bmp}{}{}% declare EMF filename extension
+  \DeclareGraphicsRule{.png}{bmp}{}{}% declare PNG filename extension
+  \usepackage{pgf}
+  \usepackage{tikz}
+  \usepackage{pstricks}%variant: \usepackage{pst-all}
+\fi
+\usepackage{epic,bez123}
+\usepackage{floatflt}% package for floatingfigure environment
+\usepackage{wrapfig}% package for wrapfigure environment
+
+\usetikzlibrary{patterns,shapes,arrows}
+
+
+%% Tabellensatz
+%\usepackage{tabularx}      % Einige Tabellensatzerweiterungen
+%\usepackage{booktabs}      % H�bsche Tabellen (unbedingt nutzen)
+%\usepackage{multirow}      % Mehrzeilige Zellen
+%\usepackage{supertabular}  % Tabell �ber mehrere Seiten
+%\usepackage{caption}       % Tabellen�berschrift
+
+\usepackage{tabularx} %erstellt Zeilenumbruch in Tabellen bestimmter Gr��e: %\begin{tabularx}{\textwidth}{|c|c|X|c|} ...\end{tabularx}
+\usepackage{longtable} % Seitenumbruch in Tabelle
+\usepackage{booktabs} %F�r dicke Linien in Tabellen, z.B. \toprule, \midrule, \cmidrule(lr){4-5} oder \bottomrule
+
+\usepackage[]{subfigure}
+%\usepackage{subcaption}
+
+
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
+    
+\errorcontextlines 10000
+
+\renewcommand{\bibname}{References}

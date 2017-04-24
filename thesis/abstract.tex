@@ -1,0 +1,38 @@
+%*************************************************************
+% Master Project                                             *
+% Ing. Minerva Gabriela Vargas Gleason                       *
+% IAI - Institute of Artificial Intelligence                 *
+% Universität Bremen                                         *
+%                                                            *
+% pdfLaTex                                                   *
+%*************************************************************
+
+
+%\thispagestyle{empty}
+%~~
+%\newpage
+%\thispagestyle{empty}
+
+\begin{tabular}{lr}
+Bremen, September 2016 &\hspace{7.5cm} \includegraphics[width=0.25\textwidth]{ai_logo.png} \\
+\Large \textbf{Abstract} \\
+~~\\
+\end{tabular}
+
+
+\normalsize
+This project is focused on the motion planning of a robotic arm. The arm is used to position a group of sensors used for active perception, the current sensor is a Microsoft Kinect 2. The project will implement a motion control system using ROS, MoveIt, and related tools, that can find collision-free paths for the arm. The goal is to point the sensors correctly to obtain desired information about objects for the robot to manipulate. In other words, to make the robot look at the objects the robot will interact with.
+
+The Institute for Artificial Intelligence (IAI) is part of the Faculty of Computer Science and member of the Center for Computing and Communication Technologies at the University of Bremen. The IAI investigates leading-edge Artificial Intelligence methods for integrated computer systems, such as robots that perform everyday human activities \footnote{\url{http://ai.uni-bremen.de/research}}. 
+
+The system is developed for the "Boxy" robot which has a UR3 robotic arm as a "neck".
+The implementation of the system is expected to include:
+\begin{itemize}
+	\item Modelling of the robot arm and robot base
+	\item Use the model of the sensor (usually pinhole camera)
+	\item Modelling of the robot's environment (for collision-free plans)
+	\item Configuring MoveIt! and choosing appropriate algorithms for the task
+	\item Testing the obtained system in simulation and in the real robot
+\end{itemize}
+
+The results of this project are being used by the Institute for Artificial Intelligence, the code written during this project is released under a free software license and can be found on GitHub\footnote{\url{https://github.com/mgvargas/Moveit_config}}.

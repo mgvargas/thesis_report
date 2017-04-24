@@ -1,0 +1,88 @@
+%*************************************************************
+% Master Project                                             *
+% Ing. Minerva Gabriela Vargas Gleason                       *
+% IAI - Institute of Artificial Intelligence                 *
+% Universität Bremen                                         *
+%                                                            *
+% pdfLaTex                                                   *
+% Editor: TeXnicCenter                                       *
+%*************************************************************
+
+\chapter{Methodology}
+
+This chapter describes ......
+
+\section{Basics}
+
+
+\section{System architecture (diagram)}
+\section{Perception}
+\subsection{Object Database}
+YAML file, Markers
+\subsection{Grasping Poses}
+\subsection{RViz integration}
+
+\section{Motion Controller}
+
+The motion control system used  to generate and control the movement of the robot is called Giskard (section \ref{subsec:giskard}). Giskard uses \textit{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}}  to calculate a trajectory for each joint. As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
+\begin{equation}
+\underset{x}{\min}\ c(x)\ =\  \underset{x}{\min}\ \frac{1}{2} \ x' \ H \ x + x' \ g(\omega_{0})
+\label{eq:cost_in}
+\end{equation}
+Where $H \in \Re^{nV\times nV}$ is a symmetric and positive (semi-)definite Hessian matrix and $g \in \Re^{nV}$ is a gradient vector that depends on the parameter $\omega_{0}$. The software tries to minimize the cost function $c(x)$. This minimization is subject to some constraints:
+$$lb(\omega_{0})\ \leq\ x\ \leq\ ub(\omega_{0})$$
+$$lbA(\omega_{0})\ \leq\ Ax\ \leq\ ubA(\omega_{0})$$
+where $lb$, $ub \in \Re^{nV}$ are the lower and upper constraint bound vectors of $x$, the matrix $A \in \Re^{nC\times nV}$ is the constrain matrix with the lower and upper constraint boundary vectors $lbA$, $ubA \in \Re^{nV}$. Equality constraints can be achieved by setting equal upper and lower boundaries.
+ 
+Several simple controllers were built and tested in order to understand the characteristics of the trajectories obtained using qpOASES. The controllers describe a two degree of freedom (DOF) linear manipulator. A state vector, $\vec{s}\ \in\ \Re$ that describes the system is used as the minimization parameter of the cost function:
+\begin{equation}
+ \vec{s} = [\dot{\ q_{0}} \ \ \dot{q_{1}} \ \ \epsilon ]^{T}
+\end{equation}
+where $\dot{q_{0}}$ is the velocity of the first joint, $\dot{q_{1}}$ the velocity of the second joint and $\epsilon$ is a slack variable. Introducing this vector on the cost function and setting the gradient $g$ to 0:
+\begin{equation}
+\underset{\vec{s}}{\min}\ c(\vec{s})\ =\  \underset{\vec{s}}{\min}\ \frac{1}{2} \ \vec{s}' \ H \ \vec{s}
+\label{eq:cost}
+\end{equation}
+with the minimization constraints given by:
+\begin{equation}
+ln(t)\ \leq\ \vec{s}\ \leq\ ub(t)
+\end{equation}
+\begin{equation}
+lnA(t)\ \leq\ A \vec{s}\ \leq\ ubA(t)
+\end{equation}
+We define different weights for each parameter of the state vector $\vec{s}$ by setting the $H$ matrix to:
+\begin{equation*}
+H\ =\ diag(\vec{\omega})
+\end{equation*}
+with the weight vector $\vec{\omega} \in \Re^{nV}$. These weights allows us to prioritize the movement of one specific joint over the others, considering that the cost function for the 2 DOF controller from eq \ref{eq:cost} is given by:
+\begin{equation}
+c(\vec{s})\ =\ \frac{1}{2} \ \vec{s}' \ H \ \vec{s} =\ \frac{1}{2} \ (\ \dot{q_{0}}^{2}\omega_{1} + \dot{q_{1}}^{2}\omega_{2} + \epsilon^{2}\omega_{3})
+\end{equation}
+
+
+\subsection{Simple 2 DOF controller}
+
+\subsection{Single goal}
+\subsection{Multiple goals}
+\subsection{Trajectory parametrization}
+\section{Trajectory evaluation}
+\subsection{One-hand Grasping}
+\subsection{Dual-hand Grasping}
+
+\section{Hardware and Software requirements}
+\label{subsec:software}
+
+This project was developed in a computer running on Ubuntu 14.04, no special hardware is required to execute the generated code.
+
+However, the user needs to have some programs and packages installed: 
+\begin{itemize}
+	\item \textbf{ROS:} With a configured workspace. The ROS distro used was \textit{indigo}
+	\item \textbf{MoveIt!:} Requires previous installation of ROS
+	\item \textbf{UR3 driver:} A recomended one is \texttt{ur\_modern\_driver}
+	\item \textbf{Boxy repositories:} The \texttt{iai\_boxy} and \texttt{iai\_robots} from the IAI github repository\footnote{\url{https://github.com/code-iai}}
+	\item \textbf{UR3 MoveIt configuration:} The code generated as a result of this project\footnote{\url{https://github.com/mgvargas/Moveit_config}}
+\end{itemize}
+
+
+After installing ROS and MoveIt!, the user has to download the specified repositories from Github. 
+
