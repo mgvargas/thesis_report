@@ -192,9 +192,9 @@ The \textit{configuration space}, where \( \bm{q} \in  \bm{C} \), is the space o
 
 During trajectory planning, one must consider several constraints involving the robot's pose. Since the allowed configurations of the robot are not known beforehand, the planning algorithm must find these valid configurations while planning. Finding these configurations is normally done through sampling, this process can become inefficient for complex environments.
 
-\subsection{Task Space}
-
-According to \citet{Taskspace}, the \textit{task space representation} (TSR) are general representations of pose constraints that can be efficiently sampled for collision evaluation. TSRs can be chained to describe constraints of articulated objects, like a robot. These representation allows handling complex pose constraints using sampling algorithms for trajectory planning. 
+%\subsection{Task Space}
+%
+%According to \citet{Taskspace}, the \textit{task space representation} (TSR) are general representations of pose constraints that can be efficiently sampled for collision evaluation. TSRs can be chained to describe constraints of articulated objects, like a robot. These representation allows handling complex pose constraints using sampling algorithms for trajectory planning. 
 
 \subsection{Motion Planning Algorithms}
 
@@ -301,7 +301,7 @@ Sample-based VS Optimization-based
 \section{Software}
 In the last years, the number of applications where humans and robots work in proximity to each other has increased. This has lead to the development of many software programs used for robot manipulation. 
 
-The IAI uses ROS to communicate with the robots, so this project was done using ROS as the base. For trajectory planning, I used Giskard (section \ref{subsec:giskard}), with RVIZ as a side tool for visualization.
+The  institute for Artificial Intelligence (IAI) uses ROS to communicate with the robots, so this project was done using ROS as base. For trajectory planning, I used Giskard (section \ref{subsec:giskard}), with RVIZ as a side tool for visualization.
 
 \subsection{ROS}
 

@@ -26,44 +26,215 @@ YAML file, Markers
 
 The motion control system used  to generate and control the movement of the robot is called Giskard (section \ref{subsec:giskard}). Giskard uses \textit{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}}  to calculate a trajectory for each joint. As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
 \begin{equation}
-\underset{x}{\min}\ c(x)\ =\  \underset{x}{\min}\ \frac{1}{2} \ x' \ H \ x + x' \ g(\omega_{0})
+\underset{x}{\min}\ c(x)\ =\  \underset{x}{\min}\ \left( \frac{1}{2} \ x' \ \textbf{H} \ x + x' \ g(\omega_{0}) \right)
 \label{eq:cost_in}
 \end{equation}
 Where $H \in \Re^{nV\times nV}$ is a symmetric and positive (semi-)definite Hessian matrix and $g \in \Re^{nV}$ is a gradient vector that depends on the parameter $\omega_{0}$. The software tries to minimize the cost function $c(x)$. This minimization is subject to some constraints:
 $$lb(\omega_{0})\ \leq\ x\ \leq\ ub(\omega_{0})$$
-$$lbA(\omega_{0})\ \leq\ Ax\ \leq\ ubA(\omega_{0})$$
+$$lbA(\omega_{0})\ \leq\ \textbf{A}x\ \leq\ ubA(\omega_{0})$$
 where $lb$, $ub \in \Re^{nV}$ are the lower and upper constraint bound vectors of $x$, the matrix $A \in \Re^{nC\times nV}$ is the constrain matrix with the lower and upper constraint boundary vectors $lbA$, $ubA \in \Re^{nV}$. Equality constraints can be achieved by setting equal upper and lower boundaries.
  
-Several simple controllers were built and tested in order to understand the characteristics of the trajectories obtained using qpOASES. The controllers describe a two degree of freedom (DOF) linear manipulator. A state vector, $\vec{s}\ \in\ \Re$ that describes the system is used as the minimization parameter of the cost function:
+Several simple controllers were built and tested in order to understand the characteristics of the trajectories obtained using qpOASES. The controllers describe a two degree of freedom (DOF) linear manipulator. A state vector, $\vec{s}\ \in\ \Re^{nV}$, that describes the system is used as the variable to minimize of the cost function:
 \begin{equation}
  \vec{s} = [\dot{\ q_{0}} \ \ \dot{q_{1}} \ \ \epsilon ]^{T}
 \end{equation}
-where $\dot{q_{0}}$ is the velocity of the first joint, $\dot{q_{1}}$ the velocity of the second joint and $\epsilon$ is a slack variable. Introducing this vector on the cost function and setting the gradient $g$ to 0:
+where $\dot{q_{0}}$ is the velocity of the first joint, $\dot{q_{1}}$ the velocity of the second joint and $\epsilon$ is a slack variable. Introducing this vector in the cost function and setting the gradient $g$ to zero:
 \begin{equation}
-\underset{\vec{s}}{\min}\ c(\vec{s})\ =\  \underset{\vec{s}}{\min}\ \frac{1}{2} \ \vec{s}' \ H \ \vec{s}
+\underset{\vec{s}}{\min}\ c(\vec{s})\ =\  \underset{\vec{s}}{\min}\ \left( \frac{1}{2} \ \vec{s}' \ \textbf{H} \ \vec{s} \right)
 \label{eq:cost}
 \end{equation}
 with the minimization constraints given by:
 \begin{equation}
-ln(t)\ \leq\ \vec{s}\ \leq\ ub(t)
+\vec{ln}(t)\ \leq\ \vec{s}\ \leq\ \vec{ub}(t)
+\label{eq:constrain}
 \end{equation}
 \begin{equation}
-lnA(t)\ \leq\ A \vec{s}\ \leq\ ubA(t)
+\vec{lnA}(t)\ \leq\ \textbf{A} \vec{s}\ \leq\ \vec{ubA}(t)
+\label{eq:constrainA}
 \end{equation}
 We define different weights for each parameter of the state vector $\vec{s}$ by setting the $H$ matrix to:
 \begin{equation*}
-H\ =\ diag(\vec{\omega})
+\textbf{H}\ =\ diag(\vec{\omega})
 \end{equation*}
 with the weight vector $\vec{\omega} \in \Re^{nV}$. These weights allows us to prioritize the movement of one specific joint over the others, considering that the cost function for the 2 DOF controller from eq \ref{eq:cost} is given by:
 \begin{equation}
-c(\vec{s})\ =\ \frac{1}{2} \ \vec{s}' \ H \ \vec{s} =\ \frac{1}{2} \ (\ \dot{q_{0}}^{2}\omega_{1} + \dot{q_{1}}^{2}\omega_{2} + \epsilon^{2}\omega_{3})
+c(\vec{s})\ =\ \frac{1}{2} \ \vec{s}' \ \textbf{H} \ \vec{s} =\ \frac{1}{2} \ (\ \dot{q_{0}}^{2}\omega_{1} + \dot{q_{1}}^{2}\omega_{2} + \epsilon^{2}\omega_{3})
 \end{equation}
 
+The software will try to minimize the cost of solving the problem by setting a higher value for the variables with a lower weight.
+
+The result of this minimization problem is the velocity required by each joint to reach a goal position in a certain time. This can be set as an equality constraint:
+\begin{equation}
+error\ =\ q_{eef,des} - q_{eef}
+\label{eq:init_error}
+\end{equation}
+\begin{equation}
+error\ \ \leq\ \ \dot{\ q_{0}} + \dot{\ q_{1}} + \epsilon\ \ \leq\ \ error
+\label{eq:goal}
+\end{equation}
+where $q_{eef,des}$ is the desired position of the end effector (EEF) and $q_{eef}$ the current position of the EEF. The position error can be used as a velocity goal if we suppose that we want to cover the distance error un one time unit. Velocity constraints are also established for each joint:
+\begin{equation}
+-\dot{q}_{0,max}\ \ \leq\ \ \dot{\ q_{0}}\ \leq\ \ \dot{q}_{0,max}
+\end{equation}
+\begin{equation}
+-\dot{q}_{1,max}\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ \dot{q}_{1,max}
+\end{equation}
+The software will try to find the velocity required by each joint to minimize the position error in one time step. Since the joints have velocity limits, it might not be possible to set velocities that satisfy the constraint set by eq \ref{eq:goal}, that is why the slack variable $\epsilon$ was introduced, with the constraints: 
+\begin{equation}
+-\epsilon{max}\ \ \leq\ \ \epsilon\ \leq\ \ \epsilon{max}
+\end{equation}
+where $\epsilon{max}\ \gg\ q_{0,max},\ q_{1,max}$. The weight of the slack value is higher than the ones of the joint velocities, so the software will try to give a higher value to the velocities than to the slack variable.
+
+The joint limits also have to be taken into consideration:
+\begin{equation}
+-q_{0,max} - q_{0}\ \ \leq\ \ \dot{\ q_{0}}\ \leq\ \ q_{0,max} - q_{0}
+\end{equation}
+\begin{equation}
+-q_{1,max} - q_{1}\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ q_{1,max} - q_{1}
+\end{equation}
+These constraints will reduce the joint velocities when they are approaching the limits until they reach zero at joint limit. The obtained velocity is the velocity the joints would have to instantaneously reach to get to the goal potion in one time instant. However, due to physical limitations, joints can not immediately reach maximum velocity on one time step, so acceleration limits have to be established:
+\begin{equation}
+-a_{0,max}\ \ \leq\ \ \dot{\ q_{0}}\ \leq\ \ a_{0,max}
+\label{eq:accel0}]
+\end{equation}
+\begin{equation}
+-a_{1,max}\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ a_{1,max}
+\label{eq:accel1}
+\end{equation}
+Combining equations \ref{eq:goal} to \ref{eq:accel1} to create the constraint bound vectors from equations \ref{eq:constrain} and \ref{eq:constrainA}, we obtain:
+\begin{equation}
+\left( \begin{array}{c}
+-\dot{q}_{0,max} \\
+-\dot{q}_{1,max} \\
+-\epsilon_{max} \\
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{cccc}
+\omega_{1} & 0 & 0 \\
+0 & \omega_{2} & 0 \\
+0 & 0 & \omega_{3} \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+\dot{q}_{0,max} \\
+\dot{q}_{1,max} \\
+\epsilon_{max} \\
+\end{array}
+\right)
+\label{eq:state_constr}
+\end{equation}
+
+\begin{equation}
+\left( \begin{array}{c}
+error \\
+-q_{0,max} - q_{0} \\
+-q_{1,max} - q_{1} \\
+a_{0,min\_lim} \\
+a_{1,min\_lim} \\
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{cccc}
+1 & 1 & 1 \\
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+error \\
+q_{0,max} - q_{0} \\
+q_{1,max} - q_{1} \\
+a_{0,max\_lim} \\
+a_{1,max\_lim} \\
+\end{array}
+\right)
+\label{eq:a_constr}
+\end{equation}
+
+The constrains set by these equations are the groundwork for the basic controllers explained in the following subsections. All these cases simulate a translational 2 DOF system, the goal is to position the EEF at a given distance (goal). The initial position of each joint is given, as well as a goal for the EEF. The initial velocity of the joints is assumed to be zero, but other initial conditions could also be considered.
 
 \subsection{Simple 2 DOF controller}
+A proportional gain for the joints goal is introduced in order to reduce the number of iterations the program required to solve the problems. In other words, the proportional gain can be used to increase the joint velocities. Rewriting equation \ref{eq:init_error}:
+\begin{equation}
+error\ =\ p\ *\ \left(q_{eef,des} - q_{eef}\right)
+\end{equation}
+Figures \ref{fig:basic_eef} and \ref{fig:basic} show the position and velocity of a 2 DOF manipulator, whose trajectory is calculated using equations \ref{eq:state_constr} and \ref{eq:a_constr} to obtain the joint velocity in each time step. Figure \ref{fig:basic_eef}  shows the EEF position (blue), velocity (yellow) and the goal position (green), while figure \ref{fig:basic} shows the joints $q_{0}$ and $q_{1}$. 
 
-\subsection{Single goal}
-\subsection{Multiple goals}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth, angle=0]{controllers/basic_eef.png}
+	\vspace{-10pt}
+	\caption{Basic 2 DOF controller: EEF trajectory. Initial acceleration is limited by constraints. Velocity decreases when EEF aproaches the goal position.}
+	\vspace{-15pt}
+	\label{fig:basic_eef}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth, angle=0]{controllers/basic_joints.png}
+	\vspace{-10pt}
+	\caption{Basic 2 DOF controller: Joints trajectory. Each joint has different velocity and acceleration constraints.}
+	\vspace{-15pt}
+	\label{fig:basic}
+\end{figure}
+It can be seen that the velocity decreases once the EEF is approaching the desired position, also the joints do not reach the maximum velocity in the first time step. This is due to the acceleration constraint given by equations \ref{eq:accel0} and \ref{eq:accel1}, the maximum acceleration is calculated on every iteration with:
+\begin{equation}
+a_{n,max\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} + a_{n,max}
+\end{equation} 
+\begin{equation}
+a_{n,min\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} - a_{n,max}
+\end{equation}
+
+where $n$ is the joint number and $a_{n,max}$ a constant acceleration limit.
+
+\subsection{Joints goal and EEF goal}
+This example allows to specify a goal position for one of the joints as well as for the EEF. Figure \ref{fig:joint_eef} to \ref{fig:joint_1} show the behavior of each joint while reaching the specified goals. Each joint has different velocity and acceleration constraints.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth, angle=0]{controllers/joint_eef.png}
+	\vspace{-10pt}
+	\caption{Joints goal and EEF goal: EEF trajectory.}
+	\vspace{-15pt}
+	\label{fig:joint_eef}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth, angle=0]{controllers/joint_q0.png}
+	\vspace{-10pt}
+	\caption{Joints goal and EEF goal: Trajectory of $q_{0}$.}
+	\vspace{-15pt}
+	\label{fig:joint_0}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth, angle=0]{controllers/joint_q1.png}
+	\vspace{-10pt}
+	\caption{Joints goal and EEF goal: Trajectory of $q_{1}$.}
+	\vspace{-15pt}
+	\label{fig:joint_1}
+\end{figure}
+It can be seen in figure \ref{fig:joint_0} that one of the joints changes direction after around 75 iterations. This happens because the goal of the EEF and of the joint are in different directions, the system tries to minimize first the EEF error and afterwards the one of the joint. This behavior suggest  that it might be better to split the problem when goals for the joints are specified, where in the first part the joint goals are satisfied and kept constant and in the second part the EEF is reached.
+
+\\......\\
+.....\\
+Explain the other controllers\\
+.....\\
+......\\
+\subsection{Range position as goal for the EEF}
+\subsection{Multiple goals for the EEF}
+\subsection{Dynamic weights}
 \subsection{Trajectory parametrization}
 \section{Trajectory evaluation}
 \subsection{One-hand Grasping}
