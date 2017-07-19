@@ -329,7 +329,7 @@ range_{max} - q_{eef}
 \right)
 $$
 
-Where $\epsilon_r$ is the slack factor for the goal range, the error is calculated using the attractor (goal) $error = attr - q_{eef}$. Here, the weight vector is defined as $\vec{\omega} = [ \omega_{1},\ \omega_{2},\ \omega_{3},\ \omega_{4} ]$. Where $\omega_{1}$ and $\omega_{2}$ are the joint weights, $\omega_{3}$ is the weight of the attractor and $\omega_{4}$ is the weight of the goal range. The constraints of the state vector (eq. \ref{eq:state_constr}) is rewritten as:
+Where $\epsilon_r$ is the slack factor for the goal range, the error is calculated using the attractor (goal) $error = attr - q_{eef}$. Here, the weight vector is defined as $\vec{\omega} = [ \omega_{1},\ \omega_{2},\ \omega_{3},\ \omega_{4} ]$. Where $\omega_{1}$ and $\omega_{2}$ are the joints weights, $\omega_{3}$ is the weight of the attractor and $\omega_{4}$ is the weight of the goal range. The constraints of the state vector (eq. \ref{eq:state_constr}) is rewritten as:
 
 $$
 \left( \begin{array}{c}
@@ -386,7 +386,110 @@ Figures \ref{fig:range_eef} to \ref{fig:range_q1} show the behavior of the EEF a
 \end{figure}
 The weight of the attractor is set higher than the range's weight, this means that the cost of reaching the point defined by the attractor is higher than just going inside the range. By doing this, the optimization algorithm prioritizes moving the EEF to the given range. Modifying these weights determine how close will the EEF come to the attractor.
 
+\subsection{Multiple goals for the EEF}
 
+It is also possible to specify multiple goals for the EEF and select them using the weights assigned to each goal. This controller shows a two DOF  linear manipulator where twu goals are specified. In this case, the matrix A and it's limits (given by equation \ref{eq:a_constr}) is modified in the next way:
+
+$$
+\left( \begin{array}{c}
+error_{goal1} \\
+error_{goal2} \\
+-q_{0,max} - q_{0} \\
+-q_{1,max} - q_{1} \\
+a_{0,min\_lim} \\
+a_{1,min\_lim} \\
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{cccc}
+1 & 1 & 1 & 0 \\
+1 & 1 & 0 & 1 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon_1 \\
+\epsilon_2 \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+error_{goal1} \\
+error_{goal2} \\
+q_{0,max} - q_{0} \\
+q_{1,max} - q_{1} \\
+a_{0,max\_lim} \\
+a_{1,max\_lim} \\
+\end{array}
+\right)
+$$
+
+Where $\epsilon_1$ and $\epsilon_2$ are the slack factor for the first  and second goals, respectively. The weight vector is defined as $\vec{\omega} = [ \omega_{1},\ \omega_{2},\ \omega_{3},\ \omega_{4} ]$. Where $\omega_{1}$ and $\omega_{2}$ are the joints' weights, $\omega_{3}$ and $\omega_{4}$ are the goals' weight. The constraints of the state vector (eq. \ref{eq:state_constr}) is rewritten as:
+
+$$
+\left( \begin{array}{c}
+-\dot{q}_{0,max} \\
+-\dot{q}_{1,max} \\
+-\epsilon_{1,max} \\
+\epsilon_{2,max} \\
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{cccc}
+\omega_{1} & 0 & 0 & 0 \\
+0 & \omega_{2} & 0 & 0 \\
+0 & 0 & \omega_{3} & 0 \\
+0 & 0 & 0 & \omega_{4} \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon_1 \\
+\epsilon_2 \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+\dot{q}_{0,max} \\
+\dot{q}_{1,max} \\
+\epsilon_{1,max} \\
+\epsilon_{2,max} \\
+\end{array}
+\right)
+$$
+\\
+In the first example, two goals are specified but only the first one is selected using the goal's weights. Goal one $q_{des1} = 0.55$ has a weight of $\omega_{3} = 0.1$ and the second goal $q_{des2} = 0.75$ has a weight of $\omega_{4} = 0.001$, the initial position of the EEF is at $q_{eef} = 0.7$. As shown in figure \ref{fig:goal1}(a), the EEF reaches the first goal.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[First Goal]
+		{\includegraphics[width=0.49\linewidth]{controllers/multip_1.png}}
+	\end{subfigure}
+	\begin{subfigure}[Second goal]
+		{\includegraphics[width=0.49\linewidth]{controllers/multip_2.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Multiple goals]{The selected goal changes depending on the weights. Trajectory (blue) and velocity (orange) of the EEF.}
+	\vspace{-10pt}
+	\label{fig:goal1}
+\end{figure}
+
+By inverting the weights, $\omega_{3} = 0.001$ and $\omega_{4} = 0.1$, the active goal also changes (figure \ref{fig:goal1} (b)). It can be seen that the velocity of the EEF in figure \ref{fig:goal1} (b) is lower than in (a). This is caused due to the proximity of one of the joints to the joint limit, which was reached shortly after 50 iterations.
+
+It is possible to make the EEF reach a point between both goals, by setting similar or equal weights to both goals (figure \ref{fig:goal2}). 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\linewidth, angle=0]{controllers/multip_3.png}
+	\vspace{-10pt}
+	\caption[Multiple goals: Middle point]{Trajectory (blue) and velocity (orange) of the EEF. Same weight in both goals.}
+	\vspace{-15pt}
+	\label{fig:goal2}
+\end{figure}
+If the weights of both goals is similar, the EEF will stay closer to one of the goals.
+
+\subsection{Dynamic weights}
 
 ...
 
@@ -395,8 +498,6 @@ The weight of the attractor is set higher than the range's weight, this means th
 
 ....
 
-\subsection{Multiple goals for the EEF}
-\subsection{Dynamic weights}
 \subsection{Trajectory parametrization}
 \section{Trajectory evaluation}
 \subsection{One-hand Grasping}
@@ -411,7 +512,7 @@ However, the user needs to have some programs and packages installed:
 \begin{itemize}
 	\item \textbf{ROS:} With a configured workspace. The ROS distro used was \textit{indigo}
 	\item \textbf{MoveIt!:} Requires previous installation of ROS
-	\item \textbf{UR3 driver:} A recomended one is \texttt{ur\_modern\_driver}
+	\item \textbf{UR3 driver:} A recommended one is \texttt{ur\_modern\_driver}
 	\item \textbf{Boxy repositories:} The \texttt{iai\_boxy} and \texttt{iai\_robots} from the IAI github repository\footnote{\url{https://github.com/code-iai}}
 	\item \textbf{UR3 MoveIt configuration:} The code generated as a result of this project\footnote{\url{https://github.com/mgvargas/Moveit_config}}
 \end{itemize}
