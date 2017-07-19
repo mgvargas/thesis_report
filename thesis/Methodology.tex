@@ -23,6 +23,7 @@ YAML file, Markers
 \subsection{RViz integration}
 
 \section{Motion Controller}
+\label{sec:motion_controller}
 
 The motion control system used  to generate and control the movement of the robot is called Giskard (section \ref{subsec:giskard}). Giskard uses \textit{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}}  to calculate a trajectory for each joint. As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
 \begin{equation}
@@ -45,11 +46,11 @@ where $\dot{q_{0}}$ is the velocity of the first joint, $\dot{q_{1}}$ the veloci
 \end{equation}
 with the minimization constraints given by:
 \begin{equation}
-\vec{ln}(t)\ \leq\ \vec{s}\ \leq\ \vec{ub}(t)
+\vec{lb}(t)\ \leq\ \vec{s}\ \leq\ \vec{ub}(t)
 \label{eq:constrain}
 \end{equation}
 \begin{equation}
-\vec{lnA}(t)\ \leq\ \textbf{A} \vec{s}\ \leq\ \vec{ubA}(t)
+\vec{lbA}(t)\ \leq\ \textbf{A} \vec{s}\ \leq\ \vec{ubA}(t)
 \label{eq:constrainA}
 \end{equation}
 We define different weights for each parameter of the state vector $\vec{s}$ by setting the $H$ matrix to:
@@ -129,7 +130,7 @@ Combining equations \ref{eq:goal} to \ref{eq:accel1} to create the constraint bo
 \right)
 \label{eq:state_constr}
 \end{equation}
-
+$\ $ \\
 \begin{equation}
 \left( \begin{array}{c}
 error \\
@@ -164,29 +165,36 @@ a_{1,max\_lim} \\
 \label{eq:a_constr}
 \end{equation}
 
-The constrains set by these equations are the groundwork for the basic controllers explained in the following subsections. All these cases simulate a translational 2 DOF system, the goal is to position the EEF at a given distance (goal). The initial position of each joint is given, as well as a goal for the EEF. The initial velocity of the joints is assumed to be zero, but other initial conditions could also be considered.
+The constrains set by these equations are the groundwork for the basic controllers explained in the following subsections. All these cases simulate a translational 2 DOF system, the goal is to position the EEF at a given distance (goal). The initial position of each joint is given, as well as a goal for the EEF. The initial velocity of the joints is assumed to be zero, but other initial conditions could also be set.
 
 \subsection{Simple 2 DOF controller}
 A proportional gain for the joints goal is introduced in order to reduce the number of iterations the program required to solve the problems. In other words, the proportional gain can be used to increase the joint velocities. Rewriting equation \ref{eq:init_error}:
 \begin{equation}
 error\ =\ p\ *\ \left(q_{eef,des} - q_{eef}\right)
 \end{equation}
-Figures \ref{fig:basic_eef} and \ref{fig:basic} show the position and velocity of a 2 DOF manipulator, whose trajectory is calculated using equations \ref{eq:state_constr} and \ref{eq:a_constr} to obtain the joint velocity in each time step. Figure \ref{fig:basic_eef}  shows the EEF position (blue), velocity (yellow) and the goal position (green), while figure \ref{fig:basic} shows the joints $q_{0}$ and $q_{1}$. 
+
+
+Figures \ref{fig:basic_eef} and \ref{fig:basic} show the position and velocity of a 2 DOF manipulator, whose trajectory is calculated using equations \ref{eq:state_constr} and \ref{eq:a_constr} to obtain the joint velocity in each time step. Figure \ref{fig:basic_eef}  shows the EEF position (blue), velocity (orange) and the goal position (green), while figure \ref{fig:basic} shows the position and velocity of the joints $q_{0}$ and $q_{1}$.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\linewidth, angle=0]{controllers/basic_eef.png}
 	\vspace{-10pt}
-	\caption{Basic 2 DOF controller: EEF trajectory. Initial acceleration is limited by constraints. Velocity decreases when EEF aproaches the goal position.}
+	\caption[Basic 2 DOF controller: EEF trajectory.] {EEF trajectory. Initial acceleration is limited by constraints. Velocity decreases as EEF aproaches the goal position.}
 	\vspace{-15pt}
 	\label{fig:basic_eef}
 \end{figure}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\linewidth, angle=0]{controllers/basic_joints.png}
+	\begin{subfigure}[][Joint $q_{0}$]
+		{\includegraphics[width=0.49\linewidth]{controllers/basic_0.png}}
+	\end{subfigure}
+	\begin{subfigure}[][Joint $q_{1}$]
+		{\includegraphics[width=0.49\linewidth]{controllers/basic_1.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Basic 2 DOF controller: Joints trajectories]{Joints trajectories (blue). Each joint has different velocity(orange) and acceleration constraints.}
 	\vspace{-10pt}
-	\caption{Basic 2 DOF controller: Joints trajectory. Each joint has different velocity and acceleration constraints.}
-	\vspace{-15pt}
 	\label{fig:basic}
 \end{figure}
 It can be seen that the velocity decreases once the EEF is approaching the desired position, also the joints do not reach the maximum velocity in the first time step. This is due to the acceleration constraint given by equations \ref{eq:accel0} and \ref{eq:accel1}, the maximum acceleration is calculated on every iteration with:
@@ -200,39 +208,193 @@ a_{n,min\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} - a_{
 where $n$ is the joint number and $a_{n,max}$ a constant acceleration limit.
 
 \subsection{Joints goal and EEF goal}
-This example allows to specify a goal position for one of the joints as well as for the EEF. Figure \ref{fig:joint_eef} to \ref{fig:joint_1} show the behavior of each joint while reaching the specified goals. Each joint has different velocity and acceleration constraints.
+This example allows to specify a goal position for one of the joints as well as for the EEF. Figures \ref{fig:joint_eef} and \ref{fig:joint_0} show the behavior of the EEF and both joints while reaching the specified goals. Each joint has different velocity and acceleration constraints.
+
+In this controller, the weight vector is defined as $\vec{\omega} = [ \omega_{1},\ \omega_{2},\ \omega_{3},\ \omega_{4} ]$. Where $\omega_{1}$ and $\omega_{2}$ are the joint weights, $\omega_{3}$ is the weight of the slack factor and $\omega_{4}$ is the weight of the joint goal. Equation \ref{eq:a_constr} is rewritten as:
+
+$$
+\left( \begin{array}{c}
+error \\
+-q_{0,max} - q_{0} \\
+-q_{1,max} - q_{1} \\
+a_{0,min\_lim} \\
+a_{1,min\_lim} \\
+joint\_error
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{cccc}
+1 & 1 & 1 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 1 \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon \\
+\epsilon_j \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+error \\
+q_{0,max} - q_{0} \\
+q_{1,max} - q_{1} \\
+a_{0,max\_lim} \\
+a_{1,max\_lim} \\
+joint\_error
+\end{array}
+\right)
+$$
+
+Where $\epsilon_j$ is the slack factor for the joint goal and $joint\_error$ is the current error of the joint $q_{0}$ to the joint goal, given by $joint\_error = q_{0,des}\ -\ q_{0}$
+
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\linewidth, angle=0]{controllers/joint_eef.png}
 	\vspace{-10pt}
-	\caption{Joints goal and EEF goal: EEF trajectory.}
+	\caption[Joint and EEF goal: EEF trajectory]{Trajectory (blue), velocity (orange) and goal (green) of the EEF.}
 	\vspace{-15pt}
 	\label{fig:joint_eef}
 \end{figure}
+The initial position ot the EEF is $0.47$, and of the joints $q_{0}= 0.02$ and $q_{0}= -0.15$, respectively. Only a goal for the EEF and for the first joint, $EEF_{f}= 0.6$ and $q_{0f} = -0.25$. are specified.
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\linewidth, angle=0]{controllers/joint_q0.png}
+	\begin{subfigure}[][Joint $q_{0}$]
+		{\includegraphics[width=0.49\linewidth]{controllers/joint_q0.png}}
+	\end{subfigure}
+	\begin{subfigure}[][Joint $q_{1}$]
+		{\includegraphics[width=0.49\linewidth]{controllers/joint_q1.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Joint and EEF goal: Joints Trajectories]{Trajectories (blue) and velocities (orange) of both joints and goal (green) of $q_{0}$.}
 	\vspace{-10pt}
-	\caption{Joints goal and EEF goal: Trajectory of $q_{0}$.}
-	\vspace{-15pt}
 	\label{fig:joint_0}
 \end{figure}
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\linewidth, angle=0]{controllers/joint_q1.png}
-	\vspace{-10pt}
-	\caption{Joints goal and EEF goal: Trajectory of $q_{1}$.}
-	\vspace{-15pt}
-	\label{fig:joint_1}
-\end{figure}
+
 It can be seen in figure \ref{fig:joint_0} that one of the joints changes direction after around 75 iterations. This happens because the goal of the EEF and of the joint are in different directions, the system tries to minimize first the EEF error and afterwards the one of the joint. This behavior suggest  that it might be better to split the problem when goals for the joints are specified, where in the first part the joint goals are satisfied and kept constant and in the second part the EEF is reached.
 
-\\......\\
-.....\\
-Explain the other controllers\\
-.....\\
-......\\
-\subsection{Range position as goal for the EEF}
+
+\subsection{Position range as goal for the EEF}
+
+In this example, the goal specified for the EEF is not one specific position, but a range, where any point in this area is a valid goal for the EEF.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth, angle=0]{controllers/range_1.png}
+	\vspace{-10pt}
+	\caption[Position range as goal]{Trajectory (blue) and velocity (orange) of the $EEF$, the goal range is between the green and red lines.}
+	\vspace{-15pt}
+	\label{fig:range_1}
+\end{figure}
+Figure \ref{fig:range_1} shows the trajectory followed by the EEF while reaching the goal, it stops shortly after entering the given goal range. If a specific point inside this range is preferred as goal, an \textit{attractor} can be created,so that the EEF will try to reach the point defined by the attractor, but, if it is not possible, it will stay in the goal range.
+
+To achieve this behavior, matrix $A$ and it's limits, $lbA$ and $ubA$, are modified, rewriting equation \ref{eq:a_constr} as:
+
+$$
+\left( \begin{array}{c}
+error \\
+-q_{0,max} - q_{0} \\
+-q_{1,max} - q_{1} \\
+a_{0,min\_lim} \\
+a_{1,min\_lim} \\
+range_{min} - q_{eef}
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{cccc}
+1 & 1 & 1 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+1 & 1 & 0 & 1 \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon \\
+\epsilon_r \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+error \\
+q_{0,max} - q_{0} \\
+q_{1,max} - q_{1} \\
+a_{0,max\_lim} \\
+a_{1,max\_lim} \\
+range_{max} - q_{eef}
+\end{array}
+\right)
+$$
+
+Where $\epsilon_r$ is the slack factor for the goal range, the error is calculated using the attractor (goal) $error = attr - q_{eef}$. Here, the weight vector is defined as $\vec{\omega} = [ \omega_{1},\ \omega_{2},\ \omega_{3},\ \omega_{4} ]$. Where $\omega_{1}$ and $\omega_{2}$ are the joint weights, $\omega_{3}$ is the weight of the attractor and $\omega_{4}$ is the weight of the goal range. The constraints of the state vector (eq. \ref{eq:state_constr}) is rewritten as:
+
+$$
+\left( \begin{array}{c}
+-\dot{q}_{0,max} \\
+-\dot{q}_{1,max} \\
+-\epsilon_{max} \\
+\epsilon_{r,max} \\
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{cccc}
+\omega_{1} & 0 & 0 & 0 \\
+0 & \omega_{2} & 0 & 0 \\
+0 & 0 & \omega_{3} & 0 \\
+0 & 0 & 0 & \omega_{4} \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon \\
+\epsilon_r \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+\dot{q}_{0,max} \\
+\dot{q}_{1,max} \\
+\epsilon_{max} \\
+\epsilon_{r,max} \\
+\end{array}
+\right)
+$$
+\\
+Figures \ref{fig:range_eef} to \ref{fig:range_q1} show the behavior of the EEF and joints, in this example the attractor was set at $0.7$, with the range between $0.67$ and $0.72$. It can be seen how the EEF reaches the goal set by the attractor, instead of just staying at the range borders. 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\linewidth, angle=0]{controllers/range_eef.png}
+	\vspace{-10pt}
+	\caption[Position range with attractor: EEF]{Trajectory (blue) and velocity (orange) of the EEF, here an attractor is defined inside the range.}
+	\vspace{-15pt}
+	\label{fig:range_eef}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[][Joint $q_{0}$]
+		{\includegraphics[width=0.49\linewidth]{controllers/range_q0.png}}
+	\end{subfigure}
+	\begin{subfigure}[][Joint $q_{1}$]
+		{\includegraphics[width=0.49\linewidth]{controllers/range_q1.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Position range with attractor: Joints]{Trajectory (blue) and velocity (orange) of both joints}
+	\vspace{-10pt}
+	\label{fig:range_q1}
+\end{figure}
+The weight of the attractor is set higher than the range's weight, this means that the cost of reaching the point defined by the attractor is higher than just going inside the range. By doing this, the optimization algorithm prioritizes moving the EEF to the given range. Modifying these weights determine how close will the EEF come to the attractor.
+
+
+
+...
+
+....
+....
+
+....
+
 \subsection{Multiple goals for the EEF}
 \subsection{Dynamic weights}
 \subsection{Trajectory parametrization}
