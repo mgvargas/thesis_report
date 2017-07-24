@@ -304,6 +304,7 @@ In the last years, the number of applications where humans and robots work in pr
 The  institute for Artificial Intelligence (IAI) uses ROS to communicate with the robots, so this project was done using ROS as base. For trajectory planning, I used Giskard (section \ref{subsec:giskard}), with RVIZ as a side tool for visualization.
 
 \subsection{ROS}
+\label{sec:ros}
 
 \textit{Robot Operating System (ROS)} is an open source software that helps developers to create robot applications. According to the official documentation\footnote{\url{http://wiki.ros.org/ROS/Introduction}}, ROS is a meta-operating system, a system that handles other operating systems, it handles hardware abstraction, low-level device control, implementation of commonly-used functionality, message-passing between processes, and package management. ROS also provides a wide range of libraries and tools for robots, such as drivers and visualizers. Some of these libraries are focused on mobility, manipulation and perception tasks.
 
@@ -370,12 +371,12 @@ RViz uses a \textit{fixed frame} as a static reference for the visualization, th
 
 
 \section{Robot Description}
+\label{sec:urdf}
 
 In oder to calculate the position and movements of the robot, all it's elements must be  represented in a way that the robot controller and the trajectory planner understands them. This implies models or descriptions where the geometry, movement ranges and kinematics are described. Such description is made with a Unified Robot Description Format (URDF).
 
 
 %\subsubsection{URDF: Unified Robot Description Format}
-%\label{subsec:urdf}
 
 As the name implies, a URDF is a file used to describe a robot, it contains XML specifications of the robot's geometry, kinematics, inertial, and sensing properties. It is the native robot description format in ROS. The URDF loads meshes that contains the geometry of one or several robot links and describes it's relative position with respect to the previous link, it also specifies the type and range of movement it has.
 

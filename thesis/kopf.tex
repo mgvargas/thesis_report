@@ -133,9 +133,36 @@
 \usepackage{upgreek} % f�r nicht-kursiv griechische Symbole
 % \upphi = phi
 
-\usepackage{listings} % F�r Programmcodeumgebung \
-\renewcommand\lstlistingname{Source Code}   % Neue Bezeichnung f�r Listing
-%\renewcommand\lstlistlistingname{Source Code Directory}   % Neue Bezeichnung f�r Listings
+%% CODE FORMAT
+\usepackage{listings} % Fur Programmcodeumgebung \
+\renewcommand\lstlistingname{Source Code}   % Neue Bezeichnung fur Listing
+
+\usepackage{color}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+
+\lstset{style=mystyle}
+%% Finish code format
 
 % Das Hyperref Packet !!!
 \usepackage[
@@ -205,7 +232,7 @@
 \ohead{\rmfamily \small \headmark} 
 \ofoot[\rmfamily \small \pagemark]{\rmfamily \small \pagemark}
 \cfoot[]{}
-\ifoot[\\ \vspace{0.2cm} \psfig{figure=./ai_logo.png,height=1.2cm}]{\\ \psfig{figure=./ai_logo.png,height=1.2cm}} 
+\ifoot[\\ \vspace{0.2cm} \psfig{figure=./ai_logo.png,height=1.1cm}]{\\ \psfig{figure=./ai_logo.png,height=1.1cm}} 
 
 
 %\usepackage{tikz}

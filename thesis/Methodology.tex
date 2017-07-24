@@ -10,22 +10,88 @@
 
 \chapter{Methodology}
 
-This chapter describes ......
+This chapter describes the general structure of the system and of all the elements that
 
 \section{Basics}
 
+The system developed in this work, which has the objective of allowing the robot to identify and grab a specified object, comprises several parts:
 
-\section{System architecture (diagram)}
+\begin{itemize}
+	\item \textbf{Object Database:} A database with a 3D model of the objects the robot will be able to grasp, as well as predefined grasping poses for each object.
+	\item \textbf{Perception system:} In order to simplify the perception task, all objects are identified using markers. The position and orientation of the markers with respect to the reference frame of the objects is known.
+	\item \textbf{Motion controller:} A constraint-based, optimization-based controller was developed. This controller allows the parametrization of the trajectory and automatically selects the better grasping pose according to the initial conditions.
+\end{itemize} 
+
+A general description of the system's architecture is shown in figure \ref{fig:sys_arch}. The system uses ROS (section \ref{sec:ros}) to send and receive information from the robot and the user, each rectangle depicts a ROS node. All nodes communicate using ROS services, actions and messages.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth, angle=0]{system/system-archit.png}
+	\vspace{-10pt}
+	\caption[System architecture] {System architecture}
+	\vspace{-15pt}
+	\label{fig:sys_arch}
+\end{figure}
+
+The \textit{Object dB} node is in charge of detecting objects and publishing it's current location, as well as the defined grasping poses for each object. The object's information is read from a YAML file (section \ref{sec:db}). This node provides a service that publishes a list of found objects.
+
+The component in charge of generating the trajectory is \textit{sim\_controller}, it receives the goal pose, calculates the required velocity for each joint and sends it to the \textit{naive\_kinematic\_simulator}\footnote{https://github.com/code-iai/iai\_naive\_kinematics\_sim}, which simulates the robot's movements. 
+
+The \textit{projection\_manager} node coordinates the whole system. It receives the request to grasp an object, asks the \textit{Object dB} if the object was detected and requests the generation of a trajectory to grasp it. Then, it sends the trajectories to the \textit{trajectory\_evaluation} noce, which evaluates between several proposed trajectories, selects one and sends it back as result.
+
 \section{Perception}
+
+The system requires previous knowledge about the objects the robot will interact with, it must be able to recognize the object and identify possible ways to grasp them. A 3D model of all objects was created, figure \ref{fig:model} shows an example of the models. These models are used for visualization in RVIZ. 
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}
+		{\includegraphics[width=0.34\linewidth]{bowl3.png}}
+	\end{subfigure}
+	\hspace{15pt}
+	\begin{subfigure}
+		{\includegraphics[width=0.2\linewidth]{cup3.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[3D models]{DAE models of a bowl and a cup. In the cup, one of the markers used for perception can be seen.}
+	\vspace{-10pt}
+	\label{fig:model}
+\end{figure}
+
+In order to simplify the perception task, markers were added to all objects. The markers used are Chilitags\footnote{http://chili.epfl.ch/software}, which can be integrated with ROS\footnote{https://github.com/chili-epfl/ros\_markers}. Once the tags or markers are detected by the camera, it's position is published to a ROS topic. The \textit{Object dB} node matches the corresponding objects to the found markers and displays the models in RVIZ.
+
 \subsection{Object Database}
-YAML file, Markers
+\label{sec:db}
+All the information about the objects is stored in a YAML file that works as database. The information is stored using the following structure:
+
+\lstinputlisting[language=Python]{codes/db.yaml}
+
+This structure is filled for every object the robot will grasp and added at the end of the YAML file.
+
 \subsection{Grasping Poses}
-\subsection{RViz integration}
+
+For humans, it is intuitive how an object can be grasped, but for a robot it is not an easy task. In this project, grasping poses (GP) are already defined for each object, so that the robot only has to choose which pose to use in every situation.
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[]
+		{\includegraphics[width=0.4\linewidth]{knorr1.png}}
+	\end{subfigure}
+	\hspace{15pt}
+	\begin{subfigure}[]
+		{\includegraphics[width=0.4\linewidth]{knorr2.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Grasping poses]{3D model of a tomato sauce package with two grasping poses. The object and GP have reference frames.}
+	\vspace{-10pt}
+	\label{fig:knorr}
+\end{figure}
+
+Figure \ref{fig:knorr} shows an object with two predefined GP. The perception system detects the position of the Chilitags markers, looks in the database for the corresponding object and GP and displays them in RVIZ, it also publishes a TF for both.
+
 
 \section{Motion Controller}
 \label{sec:motion_controller}
 
-The motion control system used  to generate and control the movement of the robot is called Giskard (section \ref{subsec:giskard}). Giskard uses \textit{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}}  to calculate a trajectory for each joint. As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
+The motion control system used  to generate and control the movement of the robot is based on Giskard (section \ref{subsec:giskard}). Giskard uses \textit{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}}  to calculate a trajectory for each joint. As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
 \begin{equation}
 \underset{x}{\min}\ c(x)\ =\  \underset{x}{\min}\ \left( \frac{1}{2} \ x' \ \textbf{H} \ x + x' \ g(\omega_{0}) \right)
 \label{eq:cost_in}
@@ -33,11 +99,12 @@ The motion control system used  to generate and control the movement of the robo
 Where $H \in \Re^{nV\times nV}$ is a symmetric and positive (semi-)definite Hessian matrix and $g \in \Re^{nV}$ is a gradient vector that depends on the parameter $\omega_{0}$. The software tries to minimize the cost function $c(x)$. This minimization is subject to some constraints:
 $$lb(\omega_{0})\ \leq\ x\ \leq\ ub(\omega_{0})$$
 $$lbA(\omega_{0})\ \leq\ \textbf{A}x\ \leq\ ubA(\omega_{0})$$
-where $lb$, $ub \in \Re^{nV}$ are the lower and upper constraint bound vectors of $x$, the matrix $A \in \Re^{nC\times nV}$ is the constrain matrix with the lower and upper constraint boundary vectors $lbA$, $ubA \in \Re^{nV}$. Equality constraints can be achieved by setting equal upper and lower boundaries.
+where $lb$, $ub \in \Re^{nV}$ are the lower and upper constraint bound vectors of $x$, the matrix $\textbf{A} \in \Re^{nC\times nV}$ is the constrain matrix with the lower and upper constraint boundary vectors $lbA$, $ubA \in \Re^{nV}$. Equality constraints can be achieved by setting equal upper and lower boundaries.
  
 Several simple controllers were built and tested in order to understand the characteristics of the trajectories obtained using qpOASES. The controllers describe a two degree of freedom (DOF) linear manipulator. A state vector, $\vec{s}\ \in\ \Re^{nV}$, that describes the system is used as the variable to minimize of the cost function:
 \begin{equation}
  \vec{s} = [\dot{\ q_{0}} \ \ \dot{q_{1}} \ \ \epsilon ]^{T}
+ \label{eq:state}
 \end{equation}
 where $\dot{q_{0}}$ is the velocity of the first joint, $\dot{q_{1}}$ the velocity of the second joint and $\epsilon$ is a slack variable. Introducing this vector in the cost function and setting the gradient $g$ to zero:
 \begin{equation}
@@ -82,9 +149,9 @@ where $q_{eef,des}$ is the desired position of the end effector (EEF) and $q_{ee
 \end{equation}
 The software will try to find the velocity required by each joint to minimize the position error in one time step. Since the joints have velocity limits, it might not be possible to set velocities that satisfy the constraint set by eq \ref{eq:goal}, that is why the slack variable $\epsilon$ was introduced, with the constraints: 
 \begin{equation}
--\epsilon{max}\ \ \leq\ \ \epsilon\ \leq\ \ \epsilon{max}
+-\epsilon_{max}\ \ \leq\ \ \epsilon\ \leq\ \ \epsilon_{max}
 \end{equation}
-where $\epsilon{max}\ \gg\ q_{0,max},\ q_{1,max}$. The weight of the slack value is higher than the ones of the joint velocities, so the software will try to give a higher value to the velocities than to the slack variable.
+where $\epsilon_{max}\ \gg\ q_{0,max},\ q_{1,max}$. The weight of the slack value is higher than the ones of the joint velocities, so the software will try to give a higher value to the velocities than to the slack variable.
 
 The joint limits also have to be taken into consideration:
 \begin{equation}
@@ -96,7 +163,7 @@ The joint limits also have to be taken into consideration:
 These constraints will reduce the joint velocities when they are approaching the limits until they reach zero at joint limit. The obtained velocity is the velocity the joints would have to instantaneously reach to get to the goal potion in one time instant. However, due to physical limitations, joints can not immediately reach maximum velocity on one time step, so acceleration limits have to be established:
 \begin{equation}
 -a_{0,max}\ \ \leq\ \ \dot{\ q_{0}}\ \leq\ \ a_{0,max}
-\label{eq:accel0}]
+\label{eq:accel0}
 \end{equation}
 \begin{equation}
 -a_{1,max}\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ a_{1,max}
@@ -200,9 +267,11 @@ Figures \ref{fig:basic_eef} and \ref{fig:basic} show the position and velocity o
 It can be seen that the velocity decreases once the EEF is approaching the desired position, also the joints do not reach the maximum velocity in the first time step. This is due to the acceleration constraint given by equations \ref{eq:accel0} and \ref{eq:accel1}, the maximum acceleration is calculated on every iteration with:
 \begin{equation}
 a_{n,max\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} + a_{n,max}
+\label{eq:accelmax}
 \end{equation} 
 \begin{equation}
 a_{n,min\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} - a_{n,max}
+\label{eq:accelmin}
 \end{equation}
 
 where $n$ is the joint number and $a_{n,max}$ a constant acceleration limit.
@@ -290,7 +359,7 @@ In this example, the goal specified for the EEF is not one specific position, bu
 \end{figure}
 Figure \ref{fig:range_1} shows the trajectory followed by the EEF while reaching the goal, it stops shortly after entering the given goal range. If a specific point inside this range is preferred as goal, an \textit{attractor} can be created,so that the EEF will try to reach the point defined by the attractor, but, if it is not possible, it will stay in the goal range.
 
-To achieve this behavior, matrix $A$ and it's limits, $lbA$ and $ubA$, are modified, rewriting equation \ref{eq:a_constr} as:
+To achieve this behavior, matrix $\textbf{A}$ and it's limits, $\vec{lbA}$ and $\vec{ubA}$, are modified, rewriting equation \ref{eq:a_constr} as:
 
 $$
 \left( \begin{array}{c}
@@ -380,7 +449,7 @@ Figures \ref{fig:range_eef} to \ref{fig:range_q1} show the behavior of the EEF a
 		{\includegraphics[width=0.49\linewidth]{controllers/range_q1.png}}
 	\end{subfigure}
 	\vspace{-12pt}
-	\caption[Position range with attractor: Joints]{Trajectory (blue) and velocity (orange) of both joints}
+	\caption[Position range with attractor: Joints]{Trajectory (blue) and velocity (orange) of both joints. Each joint has a different velocity and acceleration constraint, as well as different joint limits.}
 	\vspace{-10pt}
 	\label{fig:range_q1}
 \end{figure}
@@ -388,7 +457,7 @@ The weight of the attractor is set higher than the range's weight, this means th
 
 \subsection{Multiple goals for the EEF}
 
-It is also possible to specify multiple goals for the EEF and select them using the weights assigned to each goal. This controller shows a two DOF  linear manipulator where twu goals are specified. In this case, the matrix A and it's limits (given by equation \ref{eq:a_constr}) is modified in the next way:
+It is also possible to specify multiple goals for the EEF and select them using the weights assigned to each goal. This controller shows a two DOF  linear manipulator where twu goals are specified. In this case, the matrix \textbf{A} and it's limits (given by equation \ref{eq:a_constr}) is modified in the next way:
 
 $$
 \left( \begin{array}{c}
@@ -460,7 +529,7 @@ $$
 \right)
 $$
 \\
-In the first example, two goals are specified but only the first one is selected using the goal's weights. Goal one $q_{des1} = 0.55$ has a weight of $\omega_{3} = 0.1$ and the second goal $q_{des2} = 0.75$ has a weight of $\omega_{4} = 0.001$, the initial position of the EEF is at $q_{eef} = 0.7$. As shown in figure \ref{fig:goal1}(a), the EEF reaches the first goal.
+In the first example, two goals are specified but only the first one is selected using the goal's weights. Goal one. located at $q_{des1} = 0.55$, has a weight of $\omega_{3} = 0.1$ and the second goal, located at $q_{des2} = 0.75$, has a weight of $\omega_{4} = 0.001$, the initial position of the EEF is at $q_{eef} = 0.7$. As shown in figure \ref{fig:goal1}(a), the EEF reaches the first goal (red line).
 
 \begin{figure}[H]
 	\centering
@@ -483,25 +552,180 @@ It is possible to make the EEF reach a point between both goals, by setting simi
 	\centering
 	\includegraphics[width=0.8\linewidth, angle=0]{controllers/multip_3.png}
 	\vspace{-10pt}
-	\caption[Multiple goals: Middle point]{Trajectory (blue) and velocity (orange) of the EEF. Same weight in both goals.}
+	\caption[Multiple goals: Middle point]{Trajectory (blue) and velocity (orange) of the EEF. Same weight in both goals. Each joint has a different velocity and acceleration constraint, as well as different joint limits.}
 	\vspace{-15pt}
 	\label{fig:goal2}
 \end{figure}
-If the weights of both goals is similar, the EEF will stay closer to one of the goals.
+If the weights of both goals is similar, the EEF will stay closer to one of the goals. Selecting the appropriate weight combination, it is possible to reach any point between both goals.
+
 
 \subsection{Dynamic weights}
 
-...
+It is also possible to automatically select between two goals using dynamic weights, which change with the distance. This controller calculates the goals' weight in every iteration, with the error to the goals $q_{des1}$ and $q_{des2}$ as: 
+$$
+error_1 = (q_{des1} - q_{eef})*p \hspace{30pt}
+error_2 = (q_{des2} - q_{eef})*p
+$$
 
-....
-....
+where $p$ is the proportional gain and $q_{eef}$ the current position of the EEF. The weights are calculated with:
+\begin{equation}
+\omega_3 = \dfrac{error_2}{error_1 + error_2}^{2} \hspace{30pt}
+\omega_4 = \dfrac{error_1}{error_1 + error_2}^{2}
+\label{eq:dyn}
+\end{equation}
 
-....
+The controller will then go to the closest goal, which gets a higher weight. In this example, the initial position of the EEF is set between both goals. As shown in figure \ref{fig:dynamic}, the EEF reaches the closes goal. 
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[EEF closer to goal 2 (red)]
+		{\includegraphics[width=0.49\linewidth]{controllers/dynamic_1.png}}
+	\end{subfigure}
+	\begin{subfigure}[EEF closer to goal 1 (green)]
+		{\includegraphics[width=0.49\linewidth]{controllers/dynamic_2.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Dynamic weights: EEF]{The selected goal changes depending on the initial position of the EEF, weights are calculated on every iteration. Trajectory (blue) and velocity (orange) of the EEF.}
+	\vspace{-10pt}
+	\label{fig:dynamic}
+\end{figure}
 
-\subsection{Trajectory parametrization}
-\section{Trajectory evaluation}
-\subsection{One-hand Grasping}
-\subsection{Dual-hand Grasping}
+The only parameter changed between figure \ref{fig:dynamic} (a) and (b) is the EEF's initial position.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[Joint $q_0$]
+		{\includegraphics[width=0.49\linewidth]{controllers/dynamic_3.png}}
+	\end{subfigure}
+	\begin{subfigure}[Joint $q_1$]
+		{\includegraphics[width=0.49\linewidth]{controllers/dynamic_4.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Dynamic weights: Joints]{Trajectories (blue) and velocities (orange) of both joints. Each joint has a different velocity and acceleration constraint, as well as different joint limits.}
+	\vspace{-10pt}
+	\label{fig:dynamic_j}
+\end{figure}
+
+Figure \ref{fig:dynamic_j} shows the trajectories followed by both joints in the second example (\ref{fig:dynamic} (b)). It can be seen that the velocity profile oc both joints is similar. The different scale is due to the velocity constraints each joint has.
+
+\subsection{Three goals for the EEF}
+
+A problem seems to appear if dynamic weights are calculated when three or more goals are specified. Taking three goals as an example, if two of them are close together ($q_{des2}$ and $q_{des3}$), the controller will ignore the third goal ($q_{des1}$) and reach for a point between the other goals, since minimizing two errors is better (mathematically speaking) than one.
+
+This problem can be solved by modifying the formula used to calculate the goal's weights, so we can rewrite equation \ref{eq:dyn} as:
+$$
+\omega_3 = \dfrac{1 - \rvert error_1 - error_{min} \rvert}{error_{max} + error_{min}}^{3} $$
+$$
+\omega_4 = \dfrac{1 - \rvert error_2 - error_{min} \rvert}{error_{max} + error_{min}}^{3} 
+$$
+\begin{equation}
+\omega_5 = \dfrac{1 - \rvert error_3 - error_{min} \rvert}{error_{max} + error_{min}}^{3} 
+\end{equation}
+where:
+$$error_{min} = min(\rvert error_1\rvert, \rvert error_2\rvert, \rvert error_3\rvert)$$
+$$error_{max} = max(\rvert error_1\rvert, \rvert error_2\rvert, \rvert error_3\rvert)$$
+The matrix \textbf{A} and it's limits as well as the state vector are extended to fit the extra goals:
+$$
+\left( \begin{array}{c}
+error_{1} \\
+error_{2} \\
+error_{3} \\
+-q_{0,max} - q_{0} \\
+-q_{1,max} - q_{1} \\
+a_{0,min\_lim} \\
+a_{1,min\_lim} \\
+\end{array}
+\right)	\leq 
+\left[ \begin{array}{ccccc}
+1 & 1 & 1 & 0 & 0 \\
+1 & 1 & 0 & 1 & 0 \\
+1 & 1 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+\end{array}
+\right] *
+\left( \begin{array}{c}
+\dot{q}_{0} \\
+\dot{q}_{1} \\
+\epsilon_1 \\
+\epsilon_2 \\
+\epsilon_3 \\
+\end{array}
+\right) 
+\leq \left( \begin{array}{c}
+error_{1} \\
+error_{2} \\
+error_{3} \\
+q_{0,max} - q_{0} \\
+q_{1,max} - q_{1} \\
+a_{0,max\_lim} \\
+a_{1,max\_lim} \\
+\end{array}
+\right)
+$$
+
+Two examples in figure \ref{fig:dynamic3} show the behavior of this controller
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[EEF closer to goals 2 (red) and 3 (purple)]
+		{\includegraphics[width=0.49\linewidth]{controllers/dyn_3_eef_1.png}}
+	\end{subfigure}
+	\begin{subfigure}[EEF closer to goal 1 (green)]
+		{\includegraphics[width=0.49\linewidth]{controllers/dyn_3_eef_2.png}}
+	\end{subfigure}
+	\vspace{-12pt}
+	\caption[Dynamic weights: EEF]{The selected goal changes depending on the initial position of the EEF. Trajectory (blue) and velocity (orange) of the EEF.}
+	\vspace{-10pt}
+	\label{fig:dynamic3}
+\end{figure}
+The controller does not always reach a goal, as seen in figure \ref{fig:dynamic3} (a), if two of the given goals are close together, the EEF will stay between both.This can still be implemented as a controller for a robot if the goals are grasping poses of an object, since the gripper will still reach out for the object.
+
+The code of this controllers can be downloaded from Github\footnote{https://github.com/mgvargas/qpOASES}.
+
+\subsection{Robot controller}
+
+A controller with the same structure as the ones showed in the previous subsections was developed for the Boxy robot. Boxy's geometry and kinematics are taken from the URDF file (section \ref{sec:urdf}). 
+
+The definition of the matrix \textbf{A} and of the state vector $\ \vec{s}\ \in\ \Re^{nV}$ changes due to the DOF's and kinematics of the robot, so equation \ref{eq:state} changes to:
+\begin{equation}
+\vec{s} = [\dot{\ q_{0}} \ \ \dot{q_{1}} \ ... \dot{q_{C}} \ \ \epsilon_{0} ... \ \epsilon_{6} ]^{T}
+\end{equation}
+where $\dot{q_{0}}$ to $\dot{q_{C}}$ are the joints velocities, three for the base, one for the torso and seven for the arm, and $\epsilon_{0}$ to $\epsilon_{6}$ are slack variables, one per DOF. The matrix $\textbf{A} \in \Re^{nC\times nV}$ is defined using the Jacobian:
+\begin{equation}
+\textbf{A} =
+\left[ \begin{array}{cc}
+\textbf{J} & \textbf{I}_{p,p} \\
+\textbf{I}_{m,m} & \textbf{0}_{m,p} \\
+\textbf{I}_{m,m} & \textbf{0}_{m,p} \\
+\end{array}
+\right]
+\end{equation}
+where $\ \textbf{J}\ \in\ \Re^{p\times m}$ is the Jacobian, $p$ is the number of DOF and $m$ the number of joints to control. The constraint vectors are created using the error, joint limits and acceleration constraints:
+$$\vec{lbA} = [\ \vec{error},\ -\vec{q}_{max} - \vec{q},\ \vec{a}_{min\_lim} ]$$
+$$\vec{ubA} = [\ \vec{error},\ \vec{q}_{max} - \vec{q},\ \vec{a}_{max\_lim} ]$$
+where the acceleration limit is calculated using equations \ref{eq:accelmin} and \ref{eq:accelmax}, $\ \vec{q}_{max}$ is the vector of joint limits and $\vec{q}$ the current position of the joints.
+
+The weight vector $\ \vec{\omega}$ is calculated on every iteration. If the robot is too far away from the given goal, the arm joints are disabled and only the base moves. Between a certain distance threshold, both base and arms can move, with the weights dynamically changing in accordance to the distance. If the robot is close to the goal, then only the arms and torso are allowed to move.
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[][Isometric view]
+		{\includegraphics[width=0.41\linewidth]{boxy/Trajectory_01.png}}
+	\end{subfigure}
+	\begin{subfigure}[][Top view]
+		{\includegraphics[width=0.4\linewidth]{boxy/TrajectoryParts.png}}
+	\end{subfigure}
+	\vspace{-10pt}
+	\caption[Boxy's Trajectory]{Trajectory (blue) of the EEF. The weights are calculated on every iteration.}
+	\vspace{-15pt}
+	\label{fig:traj1}
+\end{figure}
+
+Figure \ref{fig:traj1} shows a simulated trajectory followed by the EEF while reaching out for a cup. The blue area in figure \ref{fig:traj1} (b) shows the part of the trajectory where only the base was moved, the green area is where arms, torso and base were active and the red area is where only the arm and torso were used.
+
+
+
 
 \section{Hardware and Software requirements}
 \label{subsec:software}
