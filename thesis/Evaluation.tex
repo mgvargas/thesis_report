@@ -1,7 +1,7 @@
 %*************************************************************
-% Master Project                                             *
+% Master Thesis                                              *
 % Ing. Minerva Gabriela Vargas Gleason                       *
-% IAI - Institute of Artificial Intelligence                 *
+%  IAI - Institute of Artificial Intelligence                *
 % Universität Bremen                                         *
 %                                                            *
 % pdfLaTex                                                   *
@@ -9,14 +9,56 @@
 %*************************************************************
 
 
-\chapter{Evaluation}
+\chapter{\textbf{Evaluation}}
+
+The aim of this work is to develop a system with a motion controller for the Boxy robot that generates trajectories that allow the robot to successfully grasp a specified object. In order to measure the quality of the trajectories obtained by the controller and decide if the gasping action was successful, these trajectories must be evaluated.
 
 
 \section{Experimental Setup}
 
-\section{Scenarios}
+When the system receives a request of generating a trajectory to a given object, it first access the object database (section \ref{sec:db}) to retrieve the grasping poses of the object. Then, based on the distance of each grasping pose to the robot and the manipulability of both arms, selects a grasping pose and generates several trajectories. Afterwards, it repeats this process with a couple of the remaining grasping poses. Finally, the system must decide which one of the obtained trajectories is better and send it to the robot.
 
-\subsection{Scenario 1}
+The metrics considered for each trajectory are:
+\begin{itemize}
+	\item Length of the generated path
+	\item Smoothness: No abrupt changes in velocity and acceleration
+	\item Convergence error: How far was the EEF from the desired position
+	\item Manipulability of the EEF after reaching the goal
+	\item Distance to collision: Minimum distance from the arm to any object in the scene
+	\item Planning time: How long did the controller required to calculate the trajectory
+\end{itemize}
 
-\subsection{Scenario 2}
+All trajectories that generate a collision or that do not reach a certain threshold around the grasping pose are discarded. The remaining trajectories are scored based on these metrics and the best one is sent to the robot.
+
+\subsection{Scenario 1: Simulation with objects our of reach}
+
+The scenario simulated three objects detected on top of a table: a cup, a tomato sauce package and a bottle of pancake mix. A given initial position for the robot was loaded in this environment. The robot was positioned far away from the table, so that the objects were out of reach for it. This was done in order to test the base's movement.
+
+\subsection{Scenario 2: Simulation with objects within reach}
+
+This scenario contained the same objects as the first one, but here the robot was placed closer to the table, so that the arms and torso started moving from the beginning of the trajectory.
+
+\subsection{Scenario 3: Simulation with multiple goals}
+
+The controller allows to specify of the robot should reach only one grasping pose, or any point in a region between two grasping poses. This feature can be useful when grasping objects like a plate or a bowl, that can be grasped from any point on the border or handle. so reaching a specific point is not required.
+
+\subsection{Scenario 4: Testing with the robot}
+
+The last experiment was executed on the real robot. The robot was placed in from of a table with one of the objects from the database. In this case, the trajectory evaluation included the execution time (the time the robot required to execute the given trajectory).
+
+\section{Experimental Results}
+
+The first experiments were made in simulation and visualized using RVIZ (section \ref{subsec:rviz}). In all experiments, grasping is considered successful if the robot's EEF reached one of the defined grasping poses without collisions. \todo{reaching or lifting object for a couple of seconds??}
+
+\subsection{Scenario 1: Simulation with objects our of reach}
+
+\todo{What happened? rosbag, plots, table of evaluation}
+
+\subsection{Scenario 2: Simulation with objects within reach}
+
+
+\subsection{Scenario 3: Simulation with multiple goals}
+
+
+\subsection{Scenario 4: Testing with the robot}
 

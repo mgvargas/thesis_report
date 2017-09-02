@@ -1,7 +1,7 @@
 %*************************************************************
-% Master Project                                             *
+% Master Thesis                                             *
 % Ing. Minerva Gabriela Vargas Gleason                       *
-% IAI - Institute of Artificial Intelligence                 *
+%  IAI - Institute of Artificial Intelligence                 *
 % Universität Bremen                                         *
 %                                                            *
 % pdfLaTex                                                   *
@@ -9,130 +9,130 @@
 %*************************************************************
 
 
-\chapter{\textbf{Background \&  Related Job}}
+\chapter{\textbf{Background \&  Related Work}}
 
-This chapter presents the current state of the art of some relevant topics for mobile robotics that the reader needs to fully understand the content of this thesis. The first section will refer to mobile robots' localization.
+This chapter presents the current state of the art of some relevant topics for mobile robotics that the reader needs to fully understand the content of this thesis. The first section will refer to the kinematic model of a robot. Afterwards, the general concepts of trajectory planning will be explained. In the end, a brief explanation of the software used in this thesis is given.
 
-\section{Localization Algorithms (\textit{if moving the base is required})}
-
-Robot localization can be defined as the on-line estimation of a mobile robot's position based on sensor data; the position is given with respect to a global coordinate frame. Nowadays, localization is a fundamental research problem in robotics since it is required for most mobile robotics' tasks.
-
-According to \citet{Markov}, the aim of \textit{localization} is to estimate the position of a robot, given a map of the environment and data from the robot's sensors. Localization is often referred to as \textit{position estimation}.
-
-The current localization techniques can be separated on two groups according to the problem they solve (\citep{Markov}):
-\begin{itemize}
-	\item \textbf{Tracking or local:} In this case, the initial position of the robot is known and the algorithm only has to compensate for odometry errors that appear when the robot moves. The main problem they present is that they cannot recover if they lose track of the robot's position (considering some threshold).
-	\item \textbf{Global:} These are able to obtain the initial position of a robot. In other words, they estimate the robot's position under global uncertainty. This is commonly known as the \textit{wake-up robot problem}, where the initial location of the robot is unknown.
-\end{itemize}
-
-A well-known problem in robot localization is known as the \textit{kidnapped robot problem}, where a robot is carried to a different location. Hence the robot must be able to determine whether the previous known position is wrong and,if it is, find its current location. Global algorithms are able to solve this problem. 
-
-\subsection{Markov Localization (\textit{if required})}
-
-The \textit{Markov Localization} is a global technique that estimates the position of the robot based on a probabilistic framework. Basically, what Markov localization does is represent the robot's belief by a probability distribution over possible positions \citep{Montecarlo}. The belief is updated using Bayes rule every time the robot moves or receives data from its sensors. 
-
-Let us denote the robot's position by  $l=(x,y,\theta)$, where $x$ and $y$ are the robot's coordinates with respect to a fixed world reference frame, and $\theta$ is the robot's orientation. The probability distribution that states the robot's belief of being at a certain position $l$ is given by $Bel(l)$.
-
-As shown in Figure \ref{fig:markov}, the robot starts with a uniform distribution of belief states representing that it is equally probable for the robot to be in any position in the environment. After receiving data from the sensors, the belief $Bel(l)$ is updated and the more probable positions obtain a higher value. Eventually, the robot becomes highly certain about its position, which is represented by a narrow Gaussian distribution centered around the robot's current location.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.4\linewidth]{markov.png}
-	\vspace{-10pt}
-	\caption[Markov localization: basic concept.]{Markov localization: basic concept. \citep[chap. 2, page 393]{Markov}}
-	\vspace{-15pt}
-	\label{fig:markov}
-\end{figure}
-
-As explained by \citet{Montecarlo}, the belief is updated with two different probabilistic models: a model that represents the robot's motion and a perception model that considers the sensor readings:
-\begin{itemize}
-	\item \textbf{Robot motion:} The probability that a measured movement $a$ occurs at a certain position $l'$ is given by $P\ (l\ |\ l',\ a)$. This model is used to update the belief state every time a movement is executed.
-	\begin{equation}
-	Bel(l) \leftarrow \int P\ (l\ |\ l',\ a)\ Bel(\ l')\ dl' 
-	\end{equation}
-	\item \textbf{Sensor readings:} The probability of receiving a sensor reading $s$ when the robot is at the location $l$ is given by $P\ (s\ |\ l)$. We can use this to update the robot's belief with:
-	\begin{equation}
-	Bel(l) \leftarrow \alpha \ P\  (s \ |\ l \ )\ Bel(l)
-	\end{equation}
-	where $\alpha$ is a normalization factor that makes $Bel(l)$ integrate to 1.
-\end{itemize}
-
-Markov localization is able to globally estimate the position of the robot, recover from uncertainties and odometry errors and solve the kidnapped robot problem (re-localize the robot). 
-
-This localization technique uses a probability distribution over the space of all hypotheses of where the robot can be ($Bel(l)$) to estimate the current robot location. The computational resources needed to maintain this probability distribution for all possible positions increase with the size of the space. For normal environments, the required memory can easily exceed 100MB. The problem with the high computational cost also appears in \textit{grid-based} Markov localization approaches, which discretize the relevant parts of the space using an evenly spaced grid of points.
-
-This technique works under the assumption that the environment is static (\textit{Markov assumption}), which is not true in some applications of mobile robotics. Sometimes, the robot can be located in an environment where it interacts with people and objects that can be moved. To solve the localization problem in this case, a different technique is required.
-
-\subsection{Monte Carlo Localization (\textit{if required})}
-
-Monte Carlo Localization (MCL) is a version of sampling-importance-resampling (SIR) based on Markov localization. It is a sample-based algorithm that uses particle filters to ensure the survival of the fittest.
-
-According to \citet{Montecarlo}, this algorithm uses fast sampling techniques to represent the robot's belief $Bel(l)$ by estimating the posterior distribution every time the robot moves or senses using the importance re-sampling technique.
-
-MCL uses many samples during the global localization and the sample set size is significantly reduced during tracking when an approximate position of the robot is already known. Compared to grid-based Markov localization, MCL requires considerably less memory and, therefore, can integrate measurements at a higher frequency. It is more accurate and easier to implement than Markov localization. The main advantage MCL has is that it is able to perform \textit{global localization}, meaning that MCL can obtain the initial position of a robot and solve the \textit{kidnapped robot problem} at a low computational cost. This allows us to use MCL in bigger environments.
-
-The key concept of this approach is to represent the posterior belief $Bel(l)$ by a set of $N$ weighted, random particles $S=\lbrace s_i\  \vert \ i=1...\ N\rbrace$. This sample set is a discrete approximation of a probability distribution. The distribution is updated by updating the weight of each particle after every sensor's reading or robot's movement.
-
-The samples are represented by $\langle\langle x,\ y,\ \theta\rangle,\ p\rangle$, where the first three parameters denote a possible robot position  and $p$ is the weighting factor of the particle ($p\geq\ 0$). Assume $\sum_{n=1}^{N} p_n\ = 1$, all weights must be normalized so that they sum up to 1.
-
-As explained by \citet{Montecarlo}, updating the particle set is done in two different ways:
-\begin{itemize}
-	\item \textbf{Robot Motion:} Every time the robot moves, $N$ new samples are randomly created. These new samples approximate the robot's position with respect to the motion command. Each new sample is generated from the previous sample set with it's likelihood determined by the particle's weight. The location of the new sample is given by:
-	\begin{equation}
-	\vspace{-20pt}
-		P\ (l\ \vert l'\ ,\ a)
-	\end{equation}
-	where $a$ is the observed movement and $l'$ the previous location. Figure \ref{fig:motion} shows the behavior of this sampling technique where the robot starts with a known position and moves following the straight lines.
-	
-	The uncertainty of the sample sets increases with each iteration. This uncertainty represents the error in the robot's location due to slippage and drift.
-	\item \textbf{Sensor readings:} The sample set is re-weighted implementing Bayes' rule. For a sample $\langle\ l,\ p\ \rangle$, the update rule is:
-	\begin{equation}
-	\vspace{-20pt}
-	p \leftarrow \alpha \ P\  (s \ |\ l \ )
-	\end{equation}
-	where $s$ is the sensor information and $\alpha$ a normalization factor that ensures the weights satisfy $\sum_{n=1}^{N} p_n\ = 1$.
-\end{itemize}
-
-\begin{figure}[H]
-		\centering
-		\includegraphics[width=0.5\linewidth]{robot_location.png}
-		\vspace{-10pt}
-		\caption[Monte Carlo Loc. approximation]{MCL approximation of the position's belief based only on motion commands \citep[page 3]{Montecarlo}.}
-		\vspace{-15pt}
-		\label{fig:motion}
-\end{figure}
-
-In every iteration, the sample set is centered around the robot's believed position, in case of an error in location (such as in the \textit{kidnapped robot problem}, the robot wouldn't be able to re-localize itself. In order to avoid this problem, after each update some random, uniformly distributed samples are added to the set. These added samples are used in case the robot loses track of its position. The random samples uniformly distributed in the whole environment can effectively re-localize the robot. In case the position of the robot is not lost, the weight of these random samples will decrease and the samples will disappear in the next iteration.
-
-\begin{figure}[H]
-	\centering
-	\begin{subfigure}[][Initialization]
-		{\includegraphics[width=0.32\linewidth]{position1.png}}
-	\end{subfigure}
-	\begin{subfigure}[][Uncertainty due to symmetry]
-		{\label{subfig:goal}
-		\includegraphics[width=0.32\linewidth]{position2.png}}
-	\end{subfigure}
-	\begin{subfigure}[][Final localization]
-		{\label{subfig:goal}
-		\includegraphics[width=0.32\linewidth]{position3.png}}
-	\end{subfigure}
-	\vspace{-12pt}
-	\caption{Global localization of a robot using MCL}
-	\vspace{-15pt}
-	\label{fig:example}
-\end{figure}
-\vspace{-8pt}
-
-Figure \ref{fig:example} shows an example of a global localization performed by a robot using MCL. The first image shows the initial sample set distribution where the robot's position is unknown and the samples are uniformly distributed throughout the environment. The second image shows two probable robot positions after the robot has slightly moved; this uncertainty is caused by a symmetry in the map. The random samples in the second image are the ones added after each update. The third image shows the successful localization of the robot after it kept going forward. The information used to achieve this localization was the movement commands and the sensor information.
-
-Nowadays, there are several programs that provide localization capabilities using simultaneous localization and mapping (SLAM). SLAM is the process of constructing a map of an unknown environment while keeping track of the agent's location in it. The agent is normally a robot or an autonomous vehicle.
-
-In the next section, a new SLAM software will be presented: \textit{Google Cartographer}. Google cartographer can obtain information from two different types of sensors, namely sonar and laser scanners, and can be implemented in virtually any mobile robot.
-
-\subsection{Google Cartographer}
-
------ \textbf{TODO: Enter some description here and explain it was used to create a map of the lab used to localize the robot. Gives better results than the previously used software} -----
+%\section{Localization Algorithms (\textit{if required})}
+%\todo{do I need this section?}
+%Robot localization can be defined as the on-line estimation of a mobile robot's position based on sensor data; the position is given with respect to a global coordinate frame. Nowadays, localization is a fundamental research problem in robotics since it is required for most mobile robotics' tasks.
+%
+%According to \citet{Markov}, the aim of \textit{localization} is to estimate the position of a robot, given a map of the environment and data from the robot's sensors. Localization is often referred to as \textit{position estimation}.
+%
+%The current localization techniques can be separated on two groups according to the problem they solve (\citep{Markov}):
+%\begin{itemize}
+%	\item \textbf{Tracking or local:} In this case, the initial position of the robot is known and the algorithm only has to compensate for odometry errors that appear when the robot moves. The main problem they present is that they cannot recover if they lose track of the robot's position (considering some threshold).
+%	\item \textbf{Global:} These are able to obtain the initial position of a robot. In other words, they estimate the robot's position under global uncertainty. This is commonly known as the \textit{wake-up robot problem}, where the initial location of the robot is unknown.
+%\end{itemize}
+%
+%A well-known problem in robot localization is known as the \textit{kidnapped robot problem}, where a robot is carried to a different location. Hence the robot must be able to determine whether the previous known position is wrong and,if it is, find its current location. Global algorithms are able to solve this problem. 
+%
+%\subsection{Markov Localization}
+%
+%The \textit{Markov Localization} is a global technique that estimates the position of the robot based on a probabilistic framework. Basically, what Markov localization does is represent the robot's belief by a probability distribution over possible positions \citep{Montecarlo}. The belief is updated using Bayes rule every time the robot moves or receives data from its sensors. 
+%
+%Let us denote the robot's position by  $l=(x,y,\theta)$, where $x$ and $y$ are the robot's coordinates with respect to a fixed world reference frame, and $\theta$ is the robot's orientation. The probability distribution that states the robot's belief of being at a certain position $l$ is given by $Bel(l)$.
+%
+%As shown in Figure \ref{fig:markov}, the robot starts with a uniform distribution of belief states representing that it is equally probable for the robot to be in any position in the environment. After receiving data from the sensors, the belief $Bel(l)$ is updated and the more probable positions obtain a higher value. Eventually, the robot becomes highly certain about its position, which is represented by a narrow Gaussian distribution centered around the robot's current location.
+%
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width=0.4\linewidth]{markov.png}
+%	\vspace{-10pt}
+%	\caption[Markov localization: basic concept.]{Markov localization: basic concept. \citep[chap. 2, page 393]{Markov}}
+%	\vspace{-15pt}
+%	\label{fig:markov}
+%\end{figure}
+%
+%As explained by \citet{Montecarlo}, the belief is updated with two different probabilistic models: a model that represents the robot's motion and a perception model that considers the sensor readings:
+%\begin{itemize}
+%	\item \textbf{Robot motion:} The probability that a measured movement $a$ occurs at a certain position $l'$ is given by $P\ (l\ |\ l',\ a)$. This model is used to update the belief state every time a movement is executed.
+%	\begin{equation}
+%	Bel(l) \leftarrow \int P\ (l\ |\ l',\ a)\ Bel(\ l')\ dl' 
+%	\end{equation}
+%	\item \textbf{Sensor readings:} The probability of receiving a sensor reading $s$ when the robot is at the location $l$ is given by $P\ (s\ |\ l)$. We can use this to update the robot's belief with:
+%	\begin{equation}
+%	Bel(l) \leftarrow \alpha \ P\  (s \ |\ l \ )\ Bel(l)
+%	\end{equation}
+%	where $\alpha$ is a normalization factor that makes $Bel(l)$ integrate to 1.
+%\end{itemize}
+%
+%Markov localization is able to globally estimate the position of the robot, recover from uncertainties and odometry errors and solve the kidnapped robot problem (re-localize the robot). 
+%
+%This localization technique uses a probability distribution over the space of all hypotheses of where the robot can be ($Bel(l)$) to estimate the current robot location. The computational resources needed to maintain this probability distribution for all possible positions increase with the size of the space. For normal environments, the required memory can easily exceed 100MB. The problem with the high computational cost also appears in \textit{grid-based} Markov localization approaches, which discretize the relevant parts of the space using an evenly spaced grid of points.
+%
+%This technique works under the assumption that the environment is static (\textit{Markov assumption}), which is not true in some applications of mobile robotics. Sometimes, the robot can be located in an environment where it interacts with people and objects that can be moved. To solve the localization problem in this case, a different technique is required.
+%
+%\subsection{Monte Carlo Localization}
+%
+%Monte Carlo Localization (MCL) is a version of sampling-importance-resampling (SIR) based on Markov localization. It is a sample-based algorithm that uses particle filters to ensure the survival of the fittest.
+%
+%According to \citet{Montecarlo}, this algorithm uses fast sampling techniques to represent the robot's belief $Bel(l)$ by estimating the posterior distribution every time the robot moves or senses using the importance re-sampling technique.
+%
+%MCL uses many samples during the global localization and the sample set size is significantly reduced during tracking when an approximate position of the robot is already known. Compared to grid-based Markov localization, MCL requires considerably less memory and, therefore, can integrate measurements at a higher frequency. It is more accurate and easier to implement than Markov localization. The main advantage MCL has is that it is able to perform \textit{global localization}, meaning that MCL can obtain the initial position of a robot and solve the \textit{kidnapped robot problem} at a low computational cost. This allows us to use MCL in bigger environments.
+%
+%The key concept of this approach is to represent the posterior belief $Bel(l)$ by a set of $N$ weighted, random particles $S=\lbrace s_i\  \vert \ i=1...\ N\rbrace$. This sample set is a discrete approximation of a probability distribution. The distribution is updated by updating the weight of each particle after every sensor's reading or robot's movement.
+%
+%The samples are represented by $\langle\langle x,\ y,\ \theta\rangle,\ p\rangle$, where the first three parameters denote a possible robot position  and $p$ is the weighting factor of the particle ($p\geq\ 0$). Assume $\sum_{n=1}^{N} p_n\ = 1$, all weights must be normalized so that they sum up to 1.
+%
+%As explained by \citet{Montecarlo}, updating the particle set is done in two different ways:
+%\begin{itemize}
+%	\item \textbf{Robot Motion:} Every time the robot moves, $N$ new samples are randomly created. These new samples approximate the robot's position with respect to the motion command. Each new sample is generated from the previous sample set with it's likelihood determined by the particle's weight. The location of the new sample is given by:
+%	\begin{equation}
+%	\vspace{-20pt}
+%		P\ (l\ \vert l'\ ,\ a)
+%	\end{equation}
+%	where $a$ is the observed movement and $l'$ the previous location. Figure \ref{fig:motion} shows the behavior of this sampling technique where the robot starts with a known position and moves following the straight lines.
+%	
+%	The uncertainty of the sample sets increases with each iteration. This uncertainty represents the error in the robot's location due to slippage and drift.
+%	\item \textbf{Sensor readings:} The sample set is re-weighted implementing Bayes' rule. For a sample $\langle\ l,\ p\ \rangle$, the update rule is:
+%	\begin{equation}
+%	\vspace{-20pt}
+%	p \leftarrow \alpha \ P\  (s \ |\ l \ )
+%	\end{equation}
+%	where $s$ is the sensor information and $\alpha$ a normalization factor that ensures the weights satisfy $\sum_{n=1}^{N} p_n\ = 1$.
+%\end{itemize}
+%
+%\begin{figure}[H]
+%		\centering
+%		\includegraphics[width=0.5\linewidth]{robot_location.png}
+%		\vspace{-10pt}
+%		\caption[Monte Carlo Loc. approximation]{MCL approximation of the position's belief based only on motion commands \citep[page 3]{Montecarlo}.}
+%		\vspace{-15pt}
+%		\label{fig:motion}
+%\end{figure}
+%
+%In every iteration, the sample set is centered around the robot's believed position, in case of an error in location (such as in the \textit{kidnapped robot problem}, the robot wouldn't be able to re-localize itself. In order to avoid this problem, after each update some random, uniformly distributed samples are added to the set. These added samples are used in case the robot loses track of its position. The random samples uniformly distributed in the whole environment can effectively re-localize the robot. In case the position of the robot is not lost, the weight of these random samples will decrease and the samples will disappear in the next iteration.
+%
+%\begin{figure}[H]
+%	\centering
+%	\begin{subfigure}[][Initialization]
+%		{\includegraphics[width=0.32\linewidth]{position1.png}}
+%	\end{subfigure}
+%	\begin{subfigure}[][Uncertainty due to symmetry]
+%		{\label{subfig:goal}
+%		\includegraphics[width=0.32\linewidth]{position2.png}}
+%	\end{subfigure}
+%	\begin{subfigure}[][Final localization]
+%		{\label{subfig:goal}
+%		\includegraphics[width=0.32\linewidth]{position3.png}}
+%	\end{subfigure}
+%	\vspace{-12pt}
+%	\caption{Global localization of a robot using MCL}
+%	\vspace{-15pt}
+%	\label{fig:example}
+%\end{figure}
+%\vspace{-8pt}
+%
+%Figure \ref{fig:example} shows an example of a global localization performed by a robot using MCL. The first image shows the initial sample set distribution where the robot's position is unknown and the samples are uniformly distributed throughout the environment. The second image shows two probable robot positions after the robot has slightly moved; this uncertainty is caused by a symmetry in the map. The random samples in the second image are the ones added after each update. The third image shows the successful localization of the robot after it kept going forward. The information used to achieve this localization was the movement commands and the sensor information.
+%
+%Nowadays, there are several programs that provide localization capabilities using simultaneous localization and mapping (SLAM). SLAM is the process of constructing a map of an unknown environment while keeping track of the agent's location in it. The agent is normally a robot or an autonomous vehicle.
+%
+%In the next section, a new SLAM software will be presented: \textit{Google Cartographer}. Google cartographer can obtain information from two different types of sensors, namely sonar and laser scanners, and can be implemented in virtually any mobile robot.
+%
+%\subsection{Google Cartographer}
+%\todo{Do i need this?}
+%----- \textbf{TODO: Enter some description here and explain it was used to create a map of the lab used to localize the robot. Gives better results than the previously used software} -----
 
 \section{Kinematic Modelling of a Robot}
 
@@ -197,6 +197,7 @@ During trajectory planning, one must consider several constraints involving the 
 %According to \citet{Taskspace}, the \textit{task space representation} (TSR) are general representations of pose constraints that can be efficiently sampled for collision evaluation. TSRs can be chained to describe constraints of articulated objects, like a robot. These representation allows handling complex pose constraints using sampling algorithms for trajectory planning. 
 
 \subsection{Motion Planning Algorithms}
+\todo{write more, add more references, aprox 30 at the end}
 
 One of the fundamental problems of robotics is to plan motions for complex bodies from an initial pose to a goal. As explained by \citet{Handbook}, the general path planning problem is computing a continuous free path for the robot between $\bm{q_{1}}$ and $\bm{q_{G}}$, given:
 \begin{enumerate}
@@ -253,50 +254,52 @@ A \textbf{rapidly exploring random tree (RRT)} is a sampling-based planning algo
 The basic idea of RRT is to incrementally build a search tree in the C-space that tries to connect $\bm{q_{1}}$ and $\bm{q_{G}}$, avoiding the obstacles in the way, where $\bm{G}$ is the search graph. All the vertices of $\bm{G}$ are collision-free configurations. 
 
 % instead of commented section:
-RTT will try fo find a path in the tree that connects the starting point with the goal, thus generating a collision-free trajectory for the manipulator.
+%RTT will try fo find a path in the tree that connects the starting point with the goal, thus generating a collision-free trajectory for the manipulator.
 
-%The steps of this RRT algorithm for a C-space with no obstacles are shown in Algorithm \ref{algor:rrt_alg} \citep{planning}. Let $\bm{S}\subset \bm{C_{free}}$ be the set of all points reached by $\bm{G}$. Each iteration, a new vertex is created and connected to the closest point in $S$ along the shortest possible path. 
-%
-%If there are obstacles, the tree will go up to the obstacle's boundary, approaching as close as the collision detection algorithm allows.
-%
-%\begin{algorithm}[t!]
-%	\caption{Basic RRT}\label{algor:rrt_alg}
-%	\begin{algorithmic}[1]
-%		\State $\bm{G}.init(q_{1})$;
-%		\For{$i=1$ to $K$} 
-%		\vspace{-2pt}
-%		\State $\bm{G}.add\_vertex(\alpha(i))$;
-%		\vspace{-2pt}
-%		\State $q_n \longleftarrow$ NEAREST$(S(\bm{G},\alpha(i))$;
-%		\vspace{-2pt}
-%		\State $\bm{G}.add\_edge(q_n,\alpha(i))$;
-%		\vspace{-2pt}
-%		\EndFor 
-%	\end{algorithmic}
-%\end{algorithm}
-%
-%The planner uses the obtained trees to find a path in $\bm{C_{free}}$ between the initial and the desired configuration. There are two different approaches for finding this path (figure \ref{fig:rrt_ex}):
-%\begin{itemize}
-%	\item \textbf{Single-tree search:} The planner grows a tree from $\bm{q_1}$ as shown in figure \ref{fig:rrt} and checks in every step if it is possible to reach $\bm{q_G}$ with the $\bm{S}$ created by the tree.
-%	\item \textbf{Balanced, bidirectional search:} Instead of creating only one RRT, it creates an aditional tree that starts from $\bm{q_G}$, this is quite effective when obstacles are partially surrounding $\bm{q_G}$ or $\bm{q_1}$. The graph $\bm{G}$ is formed by two trees, $T_a$ and $T_b$, growing from $\bm{q_1}$ and $\bm{q_G}$ respectively. Here, $\bm{S}$ is formed by $T_a$ and $T_b$. After some iterations, the trees are swapped, so $T_b$ is now growing around $\bm{q_1}$. Then, $T_b$ connects to a new vertex created for $T_a$, this causes that $T_b$ tries to grow towards $T_a$ and vice-versa. The solution is found when both trees connect.
-%\end{itemize}
-%
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width=0.7\linewidth]{rrt_example.png}
-%	\vspace{-10pt}
-%	\caption{ a) Single tree RRT, b) Bidirectional RRT \citep[chap.5, page 219]{planning}.}
-%	\vspace{-15pt}
-%	\label{fig:rrt_ex}
-%\end{figure}
-%
-%The bidirectional search gives much better performance compared to the single-tree search.
+The steps of this RRT algorithm for a C-space with no obstacles are shown in Algorithm \ref{algor:rrt_alg} \citep{planning}. Let $\bm{S}\subset \bm{C_{free}}$ be the set of all points reached by $\bm{G}$. Each iteration, a new vertex is created and connected to the closest point in $S$ along the shortest possible path. 
+
+If there are obstacles, the tree will go up to the obstacle's boundary, approaching as close as the collision detection algorithm allows.
+
+\begin{algorithm}[t!]
+	\caption{Basic RRT}\label{algor:rrt_alg}
+	\begin{algorithmic}[1]
+		\State $\bm{G}.init(q_{1})$;
+		\For{$i=1$ to $K$} 
+		\vspace{-2pt}
+		\State $\bm{G}.add\_vertex(\alpha(i))$;
+		\vspace{-2pt}
+		\State $q_n \longleftarrow$ NEAREST$(S(\bm{G},\alpha(i))$;
+		\vspace{-2pt}
+		\State $\bm{G}.add\_edge(q_n,\alpha(i))$;
+		\vspace{-2pt}
+		\EndFor 
+	\end{algorithmic}
+\end{algorithm}
+
+The planner uses the obtained trees to find a path in $\bm{C_{free}}$ between the initial and the desired configuration. There are two different approaches for finding this path (figure \ref{fig:rrt_ex}):
+\begin{itemize}
+	\item \textbf{Single-tree search:} The planner grows a tree from $\bm{q_1}$ as shown in figure \ref{fig:rrt} and checks in every step if it is possible to reach $\bm{q_G}$ with the $\bm{S}$ created by the tree.
+	\item \textbf{Balanced, bidirectional search:} Instead of creating only one RRT, it creates an aditional tree that starts from $\bm{q_G}$, this is quite effective when obstacles are partially surrounding $\bm{q_G}$ or $\bm{q_1}$. The graph $\bm{G}$ is formed by two trees, $T_a$ and $T_b$, growing from $\bm{q_1}$ and $\bm{q_G}$ respectively. Here, $\bm{S}$ is formed by $T_a$ and $T_b$. After some iterations, the trees are swapped, so $T_b$ is now growing around $\bm{q_1}$. Then, $T_b$ connects to a new vertex created for $T_a$, this causes that $T_b$ tries to grow towards $T_a$ and vice-versa. The solution is found when both trees connect.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{rrt_example.png}
+	\vspace{-10pt}
+	\caption{ a) Single tree RRT, b) Bidirectional RRT \citep[chap.5, page 219]{planning}.}
+	\vspace{-15pt}
+	\label{fig:rrt_ex}
+\end{figure}
+
+The bidirectional search gives much better performance compared to the single-tree search.
 
 \subsubsection{Optimization-based motion planning}
+ A different approach to solve the trajectory generation software, is using an optimization algorithm that tries to minimize an error, in this case, the distance between the robot's end effector (EEF) an the goal.
 
+\todo{finish this section Sample-based VS Optimization-based}
 ------------------------------ \textbf{TODO} --------------------------------
 
-Sample-based VS Optimization-based
+
 
 \section{Software}
 In the last years, the number of applications where humans and robots work in proximity to each other has increased. This has lead to the development of many software programs used for robot manipulation. 
@@ -317,36 +320,6 @@ ROS uses \textit{nodes} to do computations. A node is a process that communicate
 Since most applications require several nodes to control all the subsystems, it is useful to have a code that can launch multiple nodes locally and remotely. A \textit{launch file} is a XML configuration file with a *.launch extension, it can specify a set of parameters and nodes to launch. These files can also include other launch files. 
 
 
-%\subsection{MoveIt! (if used)}
-%\label{subsec:moveit}
-%
-%In \citet{moveit}, MoveIt! is defined as "\textit{a set of software
-%	packages integrated with the Robot Operating System (ROS) and designed specifically to provide such capabilities (avoid collisions with humans and other obstacles), especially for mobile manipulation.}".
-%
-%MoveIt! plans a robot trajectory using a kinematic description of the robot, an URDF (section \ref{subsec:urdf}), and a description of the environment. The environment is described using an Octomap; an Octomap is a probabilistic 3D mapping framework based on octrees, it provides a 3D occupancy grid that defines which parts of the environment are free.
-%
-%MoveIt! plans in the Configuration space (section \ref{subsec:cspace}) and executes the plan in the Cartesian space. While defining a trajectory, MoveIt! evaluates each pose, checking for collisions. It is an iterative process, that keeps on going until a collision-free trajectory is found.
-%
-%It is important to mention that MoveIt! uses 2 models for each object, as shown in figure \ref{fig:models}, one for visualization and one for collision. 
-%\begin{figure}[H]
-%	\centering
-%	\begin{subfigure}[][Visualization Model]
-%		{\includegraphics[width=0.3\linewidth]{boxy/visual.png}}
-%	\end{subfigure}
-%	~
-%	\begin{subfigure}[][Collision Model]
-%		{\includegraphics[width=0.3\linewidth]{boxy/collision.png}}
-%	\end{subfigure}
-%	\vspace{-15pt}
-%	\caption{Models of Boxy used by MoveIt!}
-%	\vspace{-10pt}
-%	\label{fig:models}
-%\end{figure}
-%
-%The \textit{visualization model} is used by RViz (section \ref{subsec:rviz}) to visualize the robot in the computer. This model is normally as close as possible to the real robot, that means that the geometry tends to be complex and the files containing it are heavy. We use this model for visualizing the planned trajectory before executing it, or for visualizing the current state of the robot.
-%
-%The \textit{collision model} of Boxy contains simplified geometry of the robot, it is usually slightly bigger than the real robot for security reasons. The collision model is the one MoveIt! uses while planning to check for collisions. Since the collision check is done for every pose in the trajectory and for every part in the model, it is convenient to have simplified geometry to speed up the calculations. The geometry of a model is represented in a mesh by triangles, a simplified model has fewer triangles than the one used for visualization. For example, the second link of the UR3 in the visualization model has 39702 triangles, and the collision model has only 849 triangles, that is 47 times less than the original model.
-
 \subsection{RViz}
 \label{subsec:rviz}
 
@@ -363,20 +336,70 @@ RViz is a 3D visualization tool for ROS. RViz displays the sensor data and the r
 
 RViz uses a \textit{fixed frame} as a static reference for the visualization, the default frame is  \texttt{$\backslash$world}. All the information that RViz receives is displayed with respect to this frame, including: robot's current state, location of objects in the environment, and data from sensors.
 
+Figure \ref{fig:rviz} shows a simulation of the Boxy robot detecting several objects located on a table in front of it, the transformation frames (TF) of both end effectors (EEF) can also be seen.
+
 \subsection{Giskard}
 \label{subsec:giskard}
+Giskard\footnote{https://github.com/SemRoCo/giskard\_core} is a constraint- and optimization-based framework for robot motion control developed by the Institute for Artificial Intelligence\footnote{http://ai.uni-bremen.de/}. Giskard was used as base to develop the motion controller used in this work.
 
-\subsection{Chili markers}
+This controller allows using action models that inform the robot how to execute a specific motion, such as pouring or grasping.
 
+\subsection{Chilitags}
 
+\textit{Chilitags}\footnote{http://chili.epfl.ch/software} is a software library for the detection and identification of 2D fiducial markers for robotics and augmented reality. Fiducial markers are objects placed in the view field of a perception system to be used as a reference. In other words, \textit{Chilitags} are markers added to objects used as reference points in a perception system. In this case, the markers help not only to find the relative position and orientation of the objects with respect to the camera, but also to identify them.
+\begin{figure}[H]
+	\centering \vspace{-10pt}
+	\begin{subfigure}[][Tag 0]
+		{\includegraphics[width=0.2\linewidth]{0.png}}
+	\end{subfigure}
+	\begin{subfigure}[][Tag 1]
+		{\includegraphics[width=0.2\linewidth]{1.png}}
+	\end{subfigure}
+	\begin{subfigure}[][Tag 2]
+		{\includegraphics[width=0.2\linewidth]{2.png}}
+	\end{subfigure}
+	\vspace{-10pt}
+	\caption[Example of Chilitags fiducial markers]{Example of Chilitags fiducial markers, each tag has a different ID number.}
+	\vspace{-10pt}
+	\label{fig:chilitag}
+\end{figure}
+
+Figure \ref{fig:chilitag} shows three fiducial markers that were placed in different objects. The precise size of the markers is known beforehand, so when placed in front of a camera, the perception system calculates the exact distance to the marker and identifies it using the pattern.
+
+In this project, perception was done by attaching markers to several kitchen objects the robot had to grasp and detecting the using a Microsoft Kinect 2 placed on top of the robot (see figure \ref{fig:boxy}).
+
+\subsection{MoveIt!}
+\label{subsec:moveit}
+
+\todo{update figures!! collision model changed}
+
+In \citet{moveit}, MoveIt! is defined as "\textit{a set of software	packages integrated with the Robot Operating System (ROS) and designed specifically to provide such capabilities (avoid collisions with humans and other obstacles), especially for mobile manipulation.}".
+
+MoveIt! Planning Scene is able to create an environment where the robot and external objects can be loaded. These objects can be seen as obstacles or as objects the robot will interact with. Moveit! represents the robot using a kinematic description of it, an URDF (section \ref{sec:urdf}). The environment is described using an Octomap; an Octomap is a probabilistic 3D mapping framework based on octrees, it provides a 3D occupancy grid that defines which parts of the environment are free.
+
+It is important to mention that MoveIt! uses 2 models for each object, as shown in figure \ref{fig:models}, one for visualization and one for collision. 
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[][Visualization Model]
+		{\includegraphics[width=0.3\linewidth]{boxy/visual.png}}
+	\end{subfigure}
+	\begin{subfigure}[][Collision Model]
+		{\includegraphics[width=0.3\linewidth]{boxy/collision.png}}
+	\end{subfigure}
+	\vspace{-15pt}
+	\caption{Models of Boxy used by MoveIt!}
+	\vspace{-10pt}
+	\label{fig:models}
+\end{figure}
+
+The \textit{visualization model} is used by RViz (section \ref{subsec:rviz}) to visualize the robot in the computer. This model is normally as close as possible to the real robot, that means that the geometry tends to be complex and the files containing it are heavy. We use this model for visualizing the planned trajectory before executing it, or for visualizing the current state of the robot.
+
+The \textit{collision model} of Boxy contains simplified geometry of the robot, it is usually slightly bigger than the real robot for security reasons. The collision model is the one MoveIt! uses to check for collisions. Since the collision check is done for every pose in the trajectory and for every part in the model, it is convenient to have simplified geometry to speed up the calculations. 
 
 \section{Robot Description}
 \label{sec:urdf}
 
 In oder to calculate the position and movements of the robot, all it's elements must be  represented in a way that the robot controller and the trajectory planner understands them. This implies models or descriptions where the geometry, movement ranges and kinematics are described. Such description is made with a Unified Robot Description Format (URDF).
-
-
-%\subsubsection{URDF: Unified Robot Description Format}
 
 As the name implies, a URDF is a file used to describe a robot, it contains XML specifications of the robot's geometry, kinematics, inertial, and sensing properties. It is the native robot description format in ROS. The URDF loads meshes that contains the geometry of one or several robot links and describes it's relative position with respect to the previous link, it also specifies the type and range of movement it has.
 
