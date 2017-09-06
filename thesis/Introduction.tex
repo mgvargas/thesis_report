@@ -11,7 +11,7 @@
 
 \chapter{\textbf{Introduction}}
 
-Motion planning and trajectory generation is a central point for robotics. Being able to parametrize the movements a robot execute is crucial for the flexibility of the system and an important step in the robot-human interaction field.
+Motion planning and trajectory generation is a central part of robotics. Being able to parametrize the movements a robot execute is crucial for the flexibility of the system and an important step in the robot-human interaction field.
 
 The number and applications of robots in our society is growing day by day, we can find them in production lines, at hospitals, as guides in museums and even at home, just to mention some examples. The capabilities and autonomy required by each robot widely varies depending on its application. One often addressed problem in robotics is object manipulation.
 
@@ -68,23 +68,19 @@ The robot will have to decide which GP is better for grasping a specified object
 
 As result, it is expected a system with a parametrized motion controller that generates a smooth trajectory for Boxy by limiting the velocity and acceleration of each joint. The system should be able to decide which grasping pose (GP) of a selected object can be better grasped given the current system conditions.
 
-\todo{is it answering the questions it should?}
-
 % Why is this an interesting problem? If solved, what is then possible?
 % What is your approach to solving this problem?
 
 \section{Contributions}
-\todo{write}
-Data, software, algorithms, designs, etc... made by me
-If the problem was solved, how was that done?
+% Data, software, algorithms, designs, etc... made by me. If the problem was solved, how was that done?
 
-The main contribution was the development of a projection system for trajectory planning (section \ref{sec:sys_description}). This system uses a naive kinematic simulator of the robot to generate several possible trajectories. Each one of the obtained trajectories is evaluated and scored and one is selected to be executed by the real robot. Some of the evaluation criteria are trajectory smoothness and length, manipulability of the robot after the goal position is reached and collisions during the trajectory simulation.
+The main contribution of this work was the development of a projection system for trajectory planning (section \ref{sec:sys_description}). This system uses a naive kinematic simulator of the robot to generate several possible trajectories. Each one of the obtained trajectories is evaluated and scored and one is selected to be executed by the real robot. Some of the evaluation criteria are trajectory smoothness and length, manipulability of the robot after the goal position is reached and collisions during the trajectory simulation.
 
 The collision detection was developed using Moveit! Planning scene\footnote{http://moveit.ros.org/} (section \ref{subsec:moveit}). The system is not able to consider collision avoidance while generating a trajectory, but the collision detection system discards all trajectories that would generate a collision with the robot itself or with the environment.
 
 During the development of this work, an object database was created, with 3D models of several objects and predefined grasping poses for each object.
 
-In order to detect the objects located in front of the robot, a perception system that used fiducial markers was developed as side product.
+In order to detect the objects located in front of the robot, a perception system that used fiducial markers was developed as side product (section \ref{sec:perception}).
 
 
 \section{Structure of the thesis}

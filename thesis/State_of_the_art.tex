@@ -69,7 +69,7 @@ This chapter presents the current state of the art of some relevant topics for m
 %
 %According to \citet{Montecarlo}, this algorithm uses fast sampling techniques to represent the robot's belief $Bel(l)$ by estimating the posterior distribution every time the robot moves or senses using the importance re-sampling technique.
 %
-%MCL uses many samples during the global localization and the sample set size is significantly reduced during tracking when an approximate position of the robot is already known. Compared to grid-based Markov localization, MCL requires considerably less memory and, therefore, can integrate measurements at a higher frequency. It is more accurate and easier to implement than Markov localization. The main advantage MCL has is that it is able to perform \textit{global localization}, meaning that MCL can obtain the initial position of a robot and solve the \textit{kidnapped robot problem} at a low computational cost. This allows us to use MCL in bigger environments.
+%  MCL uses many samples during the global localization and the sample set size is significantly reduced during tracking when an approximate position of the robot is already known. Compared to grid-based Markov localization, MCL requires considerably less memory and, therefore, can integrate measurements at a higher frequency. It is more accurate and easier to implement than Markov localization. The main advantage MCL has is that it is able to perform \textit{global localization}, meaning that MCL can obtain the initial position of a robot and solve the \textit{kidnapped robot problem} at a low computational cost. This allows us to use MCL in bigger environments.
 %
 %The key concept of this approach is to represent the posterior belief $Bel(l)$ by a set of $N$ weighted, random particles $S=\lbrace s_i\  \vert \ i=1...\ N\rbrace$. This sample set is a discrete approximation of a probability distribution. The distribution is updated by updating the weight of each particle after every sensor's reading or robot's movement.
 %
@@ -196,7 +196,7 @@ During trajectory planning, one must consider several constraints involving the 
 %
 %According to \citet{Taskspace}, the \textit{task space representation} (TSR) are general representations of pose constraints that can be efficiently sampled for collision evaluation. TSRs can be chained to describe constraints of articulated objects, like a robot. These representation allows handling complex pose constraints using sampling algorithms for trajectory planning. 
 
-\subsection{Motion Planning Algorithms}
+\section{Motion Planning Algorithms}
 \todo{write more, add more references, aprox 30 at the end}
 
 One of the fundamental problems of robotics is to plan motions for complex bodies from an initial pose to a goal. As explained by \citet{Handbook}, the general path planning problem is computing a continuous free path for the robot between $\bm{q_{1}}$ and $\bm{q_{G}}$, given:
@@ -223,7 +223,7 @@ In this project, a controller developed at the Institute for Artificial Intellig
 
 Motion planners have several ways of approaching the problem and finding a suitable trajectory for the robot to execute. Some algorithms are: sampling-based motion planning and optimization based motion planning.
 
-\subsubsection{Sampling-based motion planning}
+\subsection{Sampling-based motion planning}
 \label{subsec:planning}
 
 The planner samples different configurations in the C-space to construct collision-free paths. These paths are stored as 1D C-space curves. The main idea is to avoid the direct construction of the obstacle region $\bm{C_{obs}}$. This means that instead of considering the obstacles directly, the planner uses a collision detector for each pose in the trajectory. This approach allows using the planner for a wide range of applications, one must only adapt the collision detector to the geometry of a specific robot.
@@ -254,7 +254,7 @@ A \textbf{rapidly exploring random tree (RRT)} is a sampling-based planning algo
 The basic idea of RRT is to incrementally build a search tree in the C-space that tries to connect $\bm{q_{1}}$ and $\bm{q_{G}}$, avoiding the obstacles in the way, where $\bm{G}$ is the search graph. All the vertices of $\bm{G}$ are collision-free configurations. 
 
 % instead of commented section:
-%RTT will try fo find a path in the tree that connects the starting point with the goal, thus generating a collision-free trajectory for the manipulator.
+%  RTT will try fo find a path in the tree that connects the starting point with the goal, thus generating a collision-free trajectory for the manipulator.
 
 The steps of this RRT algorithm for a C-space with no obstacles are shown in Algorithm \ref{algor:rrt_alg} \citep{planning}. Let $\bm{S}\subset \bm{C_{free}}$ be the set of all points reached by $\bm{G}$. Each iteration, a new vertex is created and connected to the closest point in $S$ along the shortest possible path. 
 
@@ -293,18 +293,59 @@ The planner uses the obtained trees to find a path in $\bm{C_{free}}$ between th
 
 The bidirectional search gives much better performance compared to the single-tree search.
 
-\subsubsection{Optimization-based motion planning}
- A different approach to solve the trajectory generation software, is using an optimization algorithm that tries to minimize an error, in this case, the distance between the robot's end effector (EEF) an the goal.
+\subsection{Optimization-based motion planning}
+\label{sub:optimization}
+A different approach to solve the trajectory generation software, is using an optimization algorithm that tries to minimize an error, in this case, the distance between the robot's end effector (EEF) an the goal.
+ 
+The robot motion controller developed in this work uses a model predictive control (MPC) algorithm. Ax explained by \citet{mpc} \textit{"all MPC	systems rely on the idea of generating values for process inputs as solutions of an on-line (real-time) optimization problem"}. 
 
-\todo{finish this section Sample-based VS Optimization-based}
------------------------------- \textbf{TODO} --------------------------------
+MCP, also known as receding horizon control, is based on iterative optimization of a plant model. The approach used in this work, is solving the MPC with a sequence of convex quadratic programs (QP), where all motion constraints, goal and robot position are given as input to the problem and joint velocities are obtained as result (section \ref{sec:motion_controller}).
 
+Quagratic programming is the process of solving a linearly constrained quadratic optimization problem of the form:
+\begin{equation}
+f(x):= \frac{1}{2}x^{T}\textbf{P}x - x^{T}b 
+\label{eq:qp}
+\end{equation}
+The QP minimizes equation \ref{eq:qp} over $x \in \mathbb{R} ^{n}$ subject to the constraints:
+$$\textbf{C}x = c $$
+$$\textbf{D}x \leq d$$
+Where the matrix $\textbf{P} \in \mathbb{R} ^{n \times n}$ is symmetric positive definite. Matrices $\textbf{C}$ and $\textbf{D}$ are of size $\textbf{C} \in \mathbb{R} ^{m \times n}$ and $\textbf{D} \in \mathbb{R} ^{m \times n}$ and vector $b \in \mathbb{R} ^{n}$. Vector  $c \in \mathbb{R} ^{m}$ sets the equality constraints and $d \in \mathbb{R} ^{p}$ the inequality constraints of the system \citep{qp_theory}. There are two approaches for solving this optimization problem, by active set strategies or by interior point methods.
 
+Lets consider a discrete-time, time-invariant, linear system of the form:
+\begin{equation}
+x_{k+1} =  \textbf{A}x_{k} + \textbf{B}u_{k}
+\end{equation} 
+where $x_{k} \in \mathbb{R} ^{n_{x}}$ is the system state, $u_{k} \in \mathbb{R} ^{n_{u}}$, the inputs and $\textbf{A} \in \mathbb{R} ^{n_{x} \times n_{x}}$  and $\textbf{B} \in \mathbb{R} ^{n_{x} \times n_{u}}$ are fixed matrices. The constraints of input and state have to be guaranteed:
+\begin{equation}
+\underline{c} \leq \textbf{C}x_k \leq \overline{c}
+\label{eq_c1}
+\end{equation} 
+\begin{equation}
+\underline{d} \leq \textbf{D}u_k \leq \overline{d}
+\label{eq_c2}
+\end{equation} 
+According to \citet{qp_algorithm}, adapting equation \ref{eq:qp} to this system, the optimization problem the MPC solves is:
+\begin{equation}
+min\ \ x_{N}^{T}\ \textbf{P}x_N + \sum_{i=0}^{N-1} (x_{i}^{T}\ \textbf{Q}\ x_i + u_{i}^{T}\ \textbf{R}\ u_i)
+\end{equation} 
+subject to the constrains given by equations \ref{eq_c1} and \ref{eq_c2}. The initial state $x_0$ is given as input to the first iteration of the QP. As result, the required input vector $u_0$ is obtained and applied to the system. The state achieved after applying $u_0$ is given as input to the next optimization problem. The MPC successively solves parametric QP to obtain the required input sequence that lead to a desired system state.
+
+\citet{qp_algorithm} developed a strategy for the fast solution of QPs called \textit{online active set strategy}. They assume that the change in states between one QP and the next one does is not big and therefore, the solution of the new QP is close to the solution of the old QP. This approach allows faster computations, that can be used in online applications ofcomplex systems.
+ 
+The software \textit{qpOASES} implements this \textit{online active set strategy} for use in MPC, therefore it was used in this work to calculate the joint velocities as explained in section \ref{sec:motion_controller}.
+
+One of the advantages of motion control based on QP \textit{online active set strategy} is the computational speed. The trajectory can be generated fast enough for the system to recalculate it several times during the execution. Therefore, the system can react to unforeseen events, like a change in position of the goal. This is called \textit{On-line Trajectory Generation}.
+
+Using QP for robot motion control has already been done. \cite{acc_level_control} uses QP in a cyclic-motion generation scheme to prevent the angle drift of redundant robot manipulators. They apply the cyclic-motion criterion together with joint angle, velocity and acceleration limits to generate the QP, which is then solved using a neural network.
+
+\subsection{Other On-line Trajectory Generation approaches}
+
+The \textit{Reflexxes Motion Library}
 
 \section{Software}
-In the last years, the number of applications where humans and robots work in proximity to each other has increased. This has lead to the development of many software programs used for robot manipulation. 
+In the last years, the number of applications where humans and robots work in proximity to each other has increased. Robot control has become a wide-spread research area. This has lead to the development of many software programs used for robot manipulation. 
 
-The  institute for Artificial Intelligence (IAI) uses ROS to communicate with the robots, so this project was done using ROS as base. For trajectory planning, I used Giskard (section \ref{subsec:giskard}), with RVIZ as a side tool for visualization.
+The  institute for Artificial Intelligence (IAI) uses ROS to communicate with the robots. Since the system developed during this thesis is designed for the Boxy robot of the IAI, it was done using ROS as base. For trajectory planning, I developed a controller based on Giskard (section \ref{subsec:giskard}), with RVIZ as a side tool for visualization. The collision detection of the system used Moveit! (section \ref{subsec:moveit}). I also developed a small perception system for detecting the objects the robot will grasp. This was done using the Chilitags fiducial markers (section \ref{subsec:chili})].
 
 \subsection{ROS}
 \label{sec:ros}
@@ -340,11 +381,12 @@ Figure \ref{fig:rviz} shows a simulation of the Boxy robot detecting several obj
 
 \subsection{Giskard}
 \label{subsec:giskard}
-Giskard\footnote{https://github.com/SemRoCo/giskard\_core} is a constraint- and optimization-based framework for robot motion control developed by the Institute for Artificial Intelligence\footnote{http://ai.uni-bremen.de/}. Giskard was used as base to develop the motion controller used in this work.
+Giskard\footnote{https://github.com/SemRoCo/giskard\_core} is a constraint- and optimization-based framework (section \ref{sub:optimization}) for robot motion control developed by the Institute for Artificial Intelligence\footnote{http://ai.uni-bremen.de/}. Giskard was used as base to develop the motion controller used in this work.
 
 This controller allows using action models that inform the robot how to execute a specific motion, such as pouring or grasping.
 
 \subsection{Chilitags}
+\label{subsec:chili}
 
 \textit{Chilitags}\footnote{http://chili.epfl.ch/software} is a software library for the detection and identification of 2D fiducial markers for robotics and augmented reality. Fiducial markers are objects placed in the view field of a perception system to be used as a reference. In other words, \textit{Chilitags} are markers added to objects used as reference points in a perception system. In this case, the markers help not only to find the relative position and orientation of the objects with respect to the camera, but also to identify them.
 \begin{figure}[H]
@@ -371,20 +413,18 @@ In this project, perception was done by attaching markers to several kitchen obj
 \subsection{MoveIt!}
 \label{subsec:moveit}
 
-\todo{update figures!! collision model changed}
-
 In \citet{moveit}, MoveIt! is defined as "\textit{a set of software	packages integrated with the Robot Operating System (ROS) and designed specifically to provide such capabilities (avoid collisions with humans and other obstacles), especially for mobile manipulation.}".
 
-MoveIt! Planning Scene is able to create an environment where the robot and external objects can be loaded. These objects can be seen as obstacles or as objects the robot will interact with. Moveit! represents the robot using a kinematic description of it, an URDF (section \ref{sec:urdf}). The environment is described using an Octomap; an Octomap is a probabilistic 3D mapping framework based on octrees, it provides a 3D occupancy grid that defines which parts of the environment are free.
+MoveIt! Planning Scene\footnote{http://docs.ros.org/indigo/api/moveit\_core/html/classplanning\_\_scene\_1\_1PlanningScene.html} is able to create an environment where the robot and external objects can be loaded. These objects can be seen as obstacles or as objects the robot will interact with. Moveit! represents the robot using a kinematic description of it, an URDF (section \ref{sec:urdf}). The environment is described using an Octomap; an Octomap is a probabilistic 3D mapping framework based on octrees, it provides a 3D occupancy grid that defines which parts of the environment are free.
 
 It is important to mention that MoveIt! uses 2 models for each object, as shown in figure \ref{fig:models}, one for visualization and one for collision. 
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[][Visualization Model]
-		{\includegraphics[width=0.3\linewidth]{boxy/visual.png}}
+		{\includegraphics[width=0.4\linewidth]{boxy/visual.png}}
 	\end{subfigure}
 	\begin{subfigure}[][Collision Model]
-		{\includegraphics[width=0.3\linewidth]{boxy/collision.png}}
+		{\includegraphics[width=0.4\linewidth]{boxy/collision.png}}
 	\end{subfigure}
 	\vspace{-15pt}
 	\caption{Models of Boxy used by MoveIt!}
@@ -392,7 +432,7 @@ It is important to mention that MoveIt! uses 2 models for each object, as shown 
 	\label{fig:models}
 \end{figure}
 
-The \textit{visualization model} is used by RViz (section \ref{subsec:rviz}) to visualize the robot in the computer. This model is normally as close as possible to the real robot, that means that the geometry tends to be complex and the files containing it are heavy. We use this model for visualizing the planned trajectory before executing it, or for visualizing the current state of the robot.
+The \textit{visualization model} is used by RViz (section \ref{subsec:rviz}) to visualize the robot in the computer. This model is normally as close as possible to the real robot, that means the geometry tends to be complex and the files containing it are heavy. We use this model for visualizing the planned trajectory before executing it, or for visualizing the current state of the robot.
 
 The \textit{collision model} of Boxy contains simplified geometry of the robot, it is usually slightly bigger than the real robot for security reasons. The collision model is the one MoveIt! uses to check for collisions. Since the collision check is done for every pose in the trajectory and for every part in the model, it is convenient to have simplified geometry to speed up the calculations. 
 

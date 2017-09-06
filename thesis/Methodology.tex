@@ -10,7 +10,7 @@
 
 \chapter{\textbf{Methodology}}
 
-This chapter describes the general structure of the system developed in this work and all the elements that conform it. At the beginning, the perception system as well as the object's models are explained. A detailed description of the optimization-based motion controller can be found in section \ref{sec:motion_controller}, where several examples of basic controllers are presented. Afterwards, the controller developed for the robot is explained.
+This chapter describes the general structure of the system developed in this work and all the elements that conform it. At the beginning, the perception system as well as the object's models are explained. A detailed description of the optimization-based motion controller can be found in section \ref{sec:motion_controller}, where several examples of basic controllers are presented. Afterwards, the controller developed for the robot is explained. In the end, the collision detection system is described.
 
 \section{System description}
 \label{sec:sys_description}
@@ -21,10 +21,11 @@ The system developed in this work, which has the objective of allowing the robot
 	\item \textbf{Object Database:} A database with a 3D model of the objects the robot will be able to grasp, as well as predefined grasping poses for each object.
 	\item \textbf{Perception system:} In order to simplify the perception task, all objects are identified using markers. The position and orientation of the markers with respect to the reference frame of the objects is known.
 	\item \textbf{Motion controller:} A constraint-based, optimization-based controller was developed. This controller allows the parametrization of the trajectory and automatically selects the better grasping pose according to the initial conditions.
+	\item \textbf{Collision detection:} Since the motion controller is not able to detect collision objects in the environment, it is important to evaluate if the obtained trajectory would generate a collision
 \end{itemize} 
 
 A general description of the system's architecture is shown in figure \ref{fig:sys_arch}. The system uses ROS (section \ref{sec:ros}) to send and receive information from the robot and the user, each rectangle depicts a ROS node. All nodes communicate using ROS services, actions and messages.
-\todo{update diagram}
+
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\linewidth, angle=0]{system/system-archit.png}
@@ -38,9 +39,12 @@ The \textit{Object dB} node is in charge of detecting objects and publishing its
 
 The component in charge of generating the trajectory is \textit{sim\_controller}, it receives the goal pose, calculates the required velocity for each joint, and sends it to the \textit{naive\_kinematic\_simulator}\footnote{https://github.com/code-iai/iai\_naive\_kinematics\_sim}, which simulates the robot's movements. 
 
-The \textit{projection\_manager} node coordinates the whole system. It receives the request to grasp an object, asks the \textit{Object dB} if the object was detected and requests the generation of a trajectory to grasp it. Then, it sends the trajectories to the \textit{trajectory\_evaluation} node, which evaluates between several proposed trajectories, selects one and sends it back as result.
+The \textit{projection\_manager} node coordinates the whole system. It receives the request to grasp an object, asks the \textit{Object dB} if the object was detected and requests the generation of a trajectory to grasp it. The \textit{projection\_manager} requests several trajectories to the \textit{sim\_controller} to have several option to choose from. Then, it sends the trajectories to the \textit{trajectory\_evaluation} service, which evaluates between several proposed trajectories, selects one and sends it back as result. 
+
+The \textit{trajectory\_evaluation} service starts by sending each trajectory to the \textit{collision\_detection} service, it a collision is found, the trajectory is discarded. The remaining trajectories are scored based on length, smoothness, minimum distance to a collision object and the manipulability of the arm after reaching the goal. 
 
 \section{Perception System}
+\label{sec:perception}
 
 The system requires previous knowledge about the objects the robot will interact with, it must be able to recognize the object and identify possible ways to grasp it. A 3D model of all objects was created, figure \ref{fig:model} shows an example of the models. These models are used for visualization in RVIZ. 
 \begin{figure}[H]
@@ -86,7 +90,9 @@ Figure \ref{fig:knorr} shows an object with two predefined GP. The perception sy
 \section{Motion Controller}
 \label{sec:motion_controller}
 
-The motion control system used  to generate and control the movement of the robot is based on Giskard (section \ref{subsec:giskard}). Giskard uses \textit{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}}  to calculate a trajectory for each joint. As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
+The motion control system used  to generate and control the movement of the robot is based on Giskard (section \ref{subsec:giskard}), an optimization-based controller. The controller developed in this work, as well as Giskard, uses \textit{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}}  to calculate a trajectory for each joint. A brief explanation of optimization-based controllers can be found in section \ref{sub:optimization}.
+
+ As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
 \begin{equation}
 \underset{\vec{x}}{\min}\ c(x)\ =\  \underset{\vec{x}}{\min}\ \left( \frac{1}{2} \ \vec{x}\ ' \ \textbf{H} \ \vec{x} + \vec{x}\ ' \ \vec{g}(\omega_{0}) \right)
 \label{eq:cost_in}
@@ -730,9 +736,26 @@ The first goal set to the controller is a pre-grasping pose, located three centi
 ------------------------ \\
 \todo{Write some more about the controller}
 
+\section{Trajectory Evaluation}
+
+When the projection manager system receives a request to grasp an object, it asks the controller for several trajectories. The trajectory evaluation service is in charge of assigning scores to each one on these trajectories and sending the best one back.
+
+For the evaluation, different metrics are considered
+\begin{itemize}
+	\item Length of the generated path
+	\item Smoothness: No abrupt changes in velocity and acceleration
+	\item Convergence error: How far was the EEF from the desired position
+	\item Manipulability of the EEF after reaching the goal
+	\item Distance to collision: Minimum distance from the arm to any object in the scene
+	\item Planning time: How long did the controller required to calculate the trajectory
+\end{itemize}
 
 \section{Collision Checking}
-\todo{write!!!}
+Since the motion controller is not able to detect collision objects in the environment, it is important to evaluate if the obtained trajectory would generate a collision. To do so, the collision detection functionality of \textit{Moveit! Planning Scene} (section \ref{subsec:moveit}) was used. All objects detected by perception, as well as the collision model of the robot were loaded in a planning scene. The robot's URDF (section \ref{sec:urdf}) is also added to the planning scene, this allows to evaluate if the robot is in a valid state (feasibility) and to calculate the state of the robot given the joint values.
+
+The object the robot will grasp is removed from the collision objects, since the grasping would be considered as a collision. This has the disadvantage that the robot's EEF might hit the object while reaching for the grasping pose and the collision detection would not perceive it. In order to reduce the possibility of this collision, a pre-grasping pose is set as initial goal for the EEF, this pose is located 3 cm away from the object. Only after the EEF has reached the pre-grasing pose, it approaches to the object.
+
+For every step in the trajectory, the new joint values are loaded in the robot model. The planning scene evaluates if the robot is in a valid state and if there is any collision, both self-collisions and collisions with the environment are considered. If no collision was found, the minimum distance to an object is stored. The evaluation stops if a collision is found and the trajectory is discarded.
 
 \section{Hardware and Software requirements}
 \label{subsec:software}
