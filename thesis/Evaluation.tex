@@ -9,38 +9,49 @@
 %*************************************************************
 
 
-\chapter{\textbf{Evaluation}}
+\chapter{\textbf{Evaluation and Results}}
 
-The aim of this work is to develop a system with a motion controller for the Boxy robot that generates trajectories that allow the robot to successfully grasp a specified object. In order to measure the quality of the trajectories obtained by the controller and decide if the gasping action was successful, these trajectories must be evaluated.
-
-
-\section{Experimental Setup}
+The aim of this work is to develop a system with a motion controller for the Boxy robot that generates trajectories that allow the robot to successfully grasp a specified object. The system must be able to decide on its own how to grasp the object. Velocity and acceleration constraints are considered by the motion controller while generating the trajectories. 
 
 When the system receives a request of generating a trajectory to a given object, it first access the object database (section \ref{sec:db}) to retrieve the grasping poses of the object. Then, based on the distance of each grasping pose to the robot and the manipulability of both arms, selects a grasping pose and generates several trajectories. Afterwards, it repeats this process with a couple of the remaining grasping poses. Finally, the system must decide which one of the obtained trajectories is better and send it to the robot.
 
+In order to measure the quality of the trajectories obtained by the controller and decide if the grasping action was successful, these trajectories must be evaluated (section \ref{sec:traj_eval}).
+
 The metrics considered for each trajectory are:
 \begin{itemize}
-	\item Length of the generated path
-	\item Smoothness: No abrupt changes in velocity and acceleration
-	\item Convergence error: How far was the EEF from the desired position
-	\item Manipulability of the EEF after reaching the goal
-	\item Distance to collision: Minimum distance from the arm to any object in the scene
-	\item Planning time: How long did the controller required to calculate the trajectory
+	\item Length
+	\item Smoothness
+	\item Convergence error
+	\item Manipulability of the arm after reaching the goal
+	\item Distance to collision
 \end{itemize}
 
-All trajectories that generate a collision or that do not reach a certain threshold around the grasping pose are discarded. The remaining trajectories are scored based on these metrics and the best one is sent to the robot.
+All trajectories that generate a collision or that do not reach a certain threshold distance around the grasping pose are discarded. The remaining trajectories are scored based on these metrics and the best one is sent to the robot.
 
-\subsection{Scenario 1: Simulation with objects our of reach}
+In all experiments, grasping is considered successful if the robot's EEF reached one of the defined grasping poses without collisions.
 
-The scenario simulated three objects detected on top of a table: a cup, a tomato sauce package and a bottle of pancake mix. A given initial position for the robot was loaded in this environment. The robot was positioned far away from the table, so that the objects were out of reach for it. This was done in order to test the base's movement.
+\section{Experimental Setup}
 
-\subsection{Scenario 2: Simulation with objects within reach}
+The first experiments were made in simulation and visualized using RVIZ (section \ref{subsec:rviz}). Several initial configurations were tested. After achieving suitable results, experiments were done using the real robot.
 
-This scenario contained the same objects as the first one, but here the robot was placed closer to the table, so that the arms and torso started moving from the beginning of the trajectory.
 
-\subsection{Scenario 3: Simulation with multiple goals}
+\subsection{Scenario 1: Simulation}
 
-The controller allows to specify of the robot should reach only one grasping pose, or any point in a region between two grasping poses. This feature can be useful when grasping objects like a plate or a bowl, that can be grasped from any point on the border or handle. so reaching a specific point is not required.
+The scenario simulated three objects detected on top of a table: a cup, a tomato sauce package and a bottle of pancake mix . A model of the robot was loaded in this environment in front of the table (figure \ref{fig:env}). The table model and the general position of the robot with respect to it simulates the environment of the IAI's lab, the place where the experiments with the robot were done.
+
+\begin{figure}[H]
+	\centering
+	{\includegraphics[width=0.5\linewidth]{boxy/environment.png}}
+	\vspace{-12pt}
+	\caption[Simulation Environment]{Simulation Environment}
+	\vspace{-10pt}
+	\label{fig:env}
+\end{figure}
+
+Nine different initial configurations for the robot were defined. For each configuration, the robot had to grasp the three objects shown in figure \ref{fig:env}.
+
+For some of the initial configurations, he robot was positioned far away from the table, so that the objects were out of reach for it. This was done in order to test the base's movement. In other cases the robot was placed closer to the table, so that the arms and torso started moving from the beginning of the trajectory.
+
 
 \subsection{Scenario 4: Testing with the robot}
 
@@ -48,7 +59,48 @@ The last experiment was executed on the real robot. The robot was placed in from
 
 \section{Experimental Results}
 
-The first experiments were made in simulation and visualized using RVIZ (section \ref{subsec:rviz}). In all experiments, grasping is considered successful if the robot's EEF reached one of the defined grasping poses without collisions. \todo{reaching or lifting object for a couple of seconds??}
+
+
+% \todo{reaching or lifting object for a couple of seconds??}
+Figures \ref{fig:weights} to \ref{fig:arm_vel} show the results obtained by one iteration of the motion controller. In this case, the right arm of the robot has to grasp a cup located on a table out of reach fo the robot.
+
+\begin{figure}[H]
+	\centering
+	\input{plots/weights}
+	\vspace{-20pt}
+	\caption[Dynamic weights]{Dynamic weights of the base, torso and arm. All arm joints have the same weight. Iteration $0$ to $\approx100$: base active. Iteration $\approx100$ to $\approx250$: Whole robot active. Iteration $\approx250$ on: Arm active, torso partially active. } 
+	\vspace{-15pt} \label{fig:weights}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\input{plots/error}
+	\vspace{-20pt}
+	\caption[Position Error]{Position error between the EEF and the selected grasping pose} 
+	\vspace{-15pt} \label{fig:error}
+\end{figure}
+Analyzing figures \ref{fig:weights} and \ref{fig:error} it can be seen how the weights dynamically change with the distance. During the first hundred iterations, the robot is too far away from the table, so it will move only the base. Between a certain threshold, the base's weights starts increasing and the arm's and torso's weights decrease, the robot starts to use more arm and torso and less the base. When Boxy approaches the table, the base's weight is high, so the movements are executed mainly with the arm.
+
+\begin{figure}[H]
+	\centering
+	\input{plots/base_pos}
+	\vspace{-20pt}
+	\caption[Base Trajectory]{Trajectory of the base in $x$ and $y$}
+	\vspace{-15pt} \label{fig:base_pos}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\input{plots/base_vel}\vspace{-20pt}
+	\caption[Base Velocity]{Velocity of the base}
+	\vspace{-15pt} \label{fig:base_vel}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\input{plots/joint_vel}\vspace{-20pt}
+	\caption[Arm Velocity]{Velocity of each one of the arm joints} \vspace{-15pt} \label{fig:arm_vel}
+\end{figure}
+
+%\input{plots/joint_pos}\\
+
 
 \subsection{Scenario 1: Simulation with objects our of reach}
 

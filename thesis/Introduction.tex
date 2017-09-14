@@ -15,7 +15,7 @@ Motion planning and trajectory generation is a central part of robotics. Being a
 
 The number and applications of robots in our society is growing day by day, we can find them in production lines, at hospitals, as guides in museums and even at home, just to mention some examples. The capabilities and autonomy required by each robot widely varies depending on its application. One often addressed problem in robotics is object manipulation.
 
-The aim of this work is to develop the \textit{motion generation component} of a \textit{grasping system} based on a whole-body robot motion controller. The system must be able to obtain a trajectory a robot has to execute in order to grasp a specified object. This implies the system detects the object and generates a trajectory for a mechanical system with multiple degrees of freedom (DOFs) that successfully reaches a position and orientation under given initial conditions.
+The aim of this work is to develop the \textit{motion generation component} of a \textit{grasping system} based on a whole-body robot motion controller. The system must be able to obtain a trajectory that a robot has to execute in order to grasp a specified object. This implies the system detects the object and generates a trajectory for a mechanical system with multiple degrees of freedom (DOFs) that successfully reaches a position and orientation under given initial conditions.
 
 The developed system will be implemented and tested on the Boxy robot (figure \ref{fig:boxy}), a dual-armed robot from the Institute for Artificial Intelligence\footnote{http://ai.uni-bremen.de/research/robots/boxy} (IAI). The trajectory generation system currently used by Boxy is Giskard (section \ref{subsec:giskard}), an optimization-based controller developed at the IAI. 
 
@@ -55,7 +55,7 @@ Being able to grasp an object is an essential ability in robot manipulation. Hav
 
 The proposed solution to this grasping problem includes generating a data base of objects with predefined grasping poses (GP) (figure \ref{fig:obj_grasp_pose}) and a perception system that detects the stored objects and shows the possible GP and it's position with respect to the robot.
 
-The robot will have to decide which GP is better for grasping a specified object given a initial configuration. Then, a optimization controller (section \ref{sec:motion_controller}) will generate several possible trajectories, evaluate them and send the best one to the Boxy robot (figure \ref{fig:boxy}).
+The robot will have to decide which GP is better for grasping a specified object given a initial configuration. Then, an optimization controller (section \ref{sec:motion_controller}) will generate several possible trajectories, evaluate them and send the best one to the Boxy robot (figure \ref{fig:boxy}).
 
 \begin{figure}[H]
 	\centering
@@ -78,21 +78,19 @@ The main contribution of this work was the development of a projection system fo
 
 The collision detection was developed using Moveit! Planning scene\footnote{http://moveit.ros.org/} (section \ref{subsec:moveit}). The system is not able to consider collision avoidance while generating a trajectory, but the collision detection system discards all trajectories that would generate a collision with the robot itself or with the environment.
 
-During the development of this work, an object database was created, with 3D models of several objects and predefined grasping poses for each object.
+During the development of this work, an object database was created with 3D models of several objects and predefined grasping poses for each object.
 
 In order to detect the objects located in front of the robot, a perception system that used fiducial markers was developed as side product (section \ref{sec:perception}).
 
 
 \section{Structure of the thesis}
 
-The first chapter explains the aim of this work, as well as the outcomes of it...........
+The first chapter explains the aim of this work and the motivation behind it, as well as the outcomes of it. The second chapter explains the theory behind the algorithms of this thesis and some useful concepts. It starts by describing come basic concepts for trajectory planning in robotics, such as kinematic models and collision environment. Afterwards it explains some motion planning algorithms, including the one used in this work. In the end, it gives a short description of the  software used by the system.
+
+Chapter three depicts all the elements of the system created in this work. First, it shows the system architecture and starts describing them. At first, the perception system is explained, afterwards comes the structure of the database where the object's models and descriptions are stored. The third section explains the motion controller, the main component of this work. Then it gives a brief explanation of the trajectory evaluation and collision checking. 
+
+
+%Finally it states the software and hardware where the code was generated and executed.
 \todo{write}
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width=0.6\linewidth, angle=0]{boxy/Boxy3.jpg}
-%	\vspace{-10pt}
-%	\caption{Boxy Robot}
-%	\vspace{-15pt}
-%	\label{fig:boxy}
-%\end{figure}
+
 

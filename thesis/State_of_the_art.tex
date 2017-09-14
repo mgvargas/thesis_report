@@ -159,11 +159,17 @@ When programming a robot, a suitable representation of its kinematic model is re
 
 \section{Collision Environment}
 
+\textbf{Workspace}
+
 The workspace of a robot is defined as the total volume swept out by the end-effector as the manipulator executes all possible motions \citep[chap. 1]{Handbook}. In simple terms, the workspace is the space that can be reached by the robot.
+
+\textbf{Working environment}
 
 The working environment consists of all the external factors surrounding and affecting the robot. In other words, it is the space where the robot is working, including all the objects in there. According to \citet{Taskspace}, the robot is considered to be operating in a "world" that it cannot leave; actions can affect the environment and, thus, change it for the robot. 
 
 The environment can be represented in a graphical way with meshes that describe the geometry of the objects and of the robot. The position of the meshes in the model environment has to match the position of the real objects. Motion planning algorithms are then used to calculate trajectories that the robot can execute without colliding with the environment or itself. 
+
+\textbf{Sensors}
 
 A robot can have two types of sensors \citep[chap. 1]{Russel}:
 \begin{itemize}
@@ -199,7 +205,7 @@ During trajectory planning, one must consider several constraints involving the 
 \section{Motion Planning Algorithms}
 \todo{write more, add more references, aprox 30 at the end}
 
-One of the fundamental problems of robotics is to plan motions for complex bodies from an initial pose to a goal. As explained by \citet{Handbook}, the general path planning problem is computing a continuous free path for the robot between $\bm{q_{1}}$ and $\bm{q_{G}}$, given:
+One of the fundamental problems in robotics is to plan motions for complex bodies from an initial pose to a goal. As explained by \citet{Handbook}, the general path planning problem is computing a continuous free path for the robot between $\bm{q_{1}}$ and $\bm{q_{G}}$, given:
 \begin{enumerate}
 	\vspace{-5pt}
 	\item The robot's workspace $\bm{W}$
@@ -286,7 +292,7 @@ The planner uses the obtained trees to find a path in $\bm{C_{free}}$ between th
 	\centering
 	\includegraphics[width=0.7\linewidth]{rrt_example.png}
 	\vspace{-10pt}
-	\caption{ a) Single tree RRT, b) Bidirectional RRT \citep[chap.5, page 219]{planning}.}
+	\caption[Single and bidirectional RTT]{ a) Single tree RRT, b) Bidirectional RRT \citep[chap.5, page 219]{planning}.}
 	\vspace{-15pt}
 	\label{fig:rrt_ex}
 \end{figure}
@@ -330,7 +336,7 @@ min\ \ x_{N}^{T}\ \textbf{P}x_N + \sum_{i=0}^{N-1} (x_{i}^{T}\ \textbf{Q}\ x_i +
 \end{equation} 
 subject to the constrains given by equations \ref{eq_c1} and \ref{eq_c2}. The initial state $x_0$ is given as input to the first iteration of the QP. As result, the required input vector $u_0$ is obtained and applied to the system. The state achieved after applying $u_0$ is given as input to the next optimization problem. The MPC successively solves parametric QP to obtain the required input sequence that lead to a desired system state.
 
-\citet{qp_algorithm} developed a strategy for the fast solution of QPs called \textit{online active set strategy}. They assume that the change in states between one QP and the next one does is not big and therefore, the solution of the new QP is close to the solution of the old QP. This approach allows faster computations, that can be used in online applications ofcomplex systems.
+\citet{qp_algorithm} developed a strategy for the fast solution of QPs called \textit{online active set strategy}. They assume that the change in states between one QP and the next one is not big and therefore, the solution of the new QP is close to the solution of the old QP. This approach allows faster computations, that can be used in online applications ofcomplex systems.
  
 The software \textit{qpOASES} implements this \textit{online active set strategy} for use in MPC, therefore it was used in this work to calculate the joint velocities as explained in section \ref{sec:motion_controller}.
 
@@ -338,9 +344,26 @@ One of the advantages of motion control based on QP \textit{online active set st
 
 Using QP for robot motion control has already been done. \cite{acc_level_control} uses QP in a cyclic-motion generation scheme to prevent the angle drift of redundant robot manipulators. They apply the cyclic-motion criterion together with joint angle, velocity and acceleration limits to generate the QP, which is then solved using a neural network.
 
+\todo{small box with QP algorithm}
+
 \subsection{Other On-line Trajectory Generation approaches}
 
-The \textit{Reflexxes Motion Library}
+The \textit{Reflexxes Motion Libraries} \citep{reflexxes_lib} are robot motion control libraries that provide tools for trajectory generation, the key capabilities of these libraries are the ability of calculating motions from an arbitrary initial state and the calculation of new motion on every control cycle.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{reflexxes.png}
+	\vspace{-10pt}
+	\caption[Reflexxes]{Interface of the Reflexxes Motion Libraries \citep[page 1]{reflexxes_lib}.}
+	\vspace{-15pt}
+	\label{fig:reflex}
+\end{figure}
+
+Figure \ref{fig:reflex} shows the interface of the motion library, it considers the current state of the robot and it's constrains to calculate the new state the system needs to achieve the target position and velocity. Doing the calculations on every control cycle (approx 1 msec) allows the system to react to unforseen events, such as switching of coordinate frames, and to sensor signals.
+
+Reflexxes is based on \citet{reflexxes_theory}, they propose a motion control technique that allows instantaneous switching between \textit{trajectory-following control} and  \textit{sensor-guided control}.
+
+\todo{explain the algorithm used here}
 
 \section{Software}
 In the last years, the number of applications where humans and robots work in proximity to each other has increased. Robot control has become a wide-spread research area. This has lead to the development of many software programs used for robot manipulation. 

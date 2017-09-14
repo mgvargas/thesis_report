@@ -1,97 +1,99 @@
 {\small
 \begin{center}
 %\begin{tabu} to 0.8\textwidth{ | c | c | c | c | c | c || c || }
-\begin{longtable}[c]{ | c | c | c | c | c | c || c || }
+\begin{longtable}[c]{ | c | c | c | c | c | c | c || c || }
 \hline
 \hline
-\multicolumn{7}{|c|}{Scenario 1 (distance in cm)} \\
+\multicolumn{8}{|c|}{Scenario 1 (distance in cm)} \\
 \hline
 \hline
-\multicolumn{7}{|c|}{Initial robot configuration 0} \\
+\multicolumn{8}{|c|}{Initial robot configuration 0} \\
 \hline
-\multirow{2}{*}{Object} & \multirow{2}{*}{Length} & \multicolumn{2}{c|}{Smoothness} & \multirow{2}{1.7cm}{Dist. to collision} &\multirow{2}{*}{Manipulability} & \multirow{2}{*}{Score}\\
+\multirow{2}{*}{Object} & \multirow{2}{*}{Length} & \multicolumn{2}{c|}{Smoothness} & \multirow{2}{1.5cm}{Dist. to collision} &\multirow{2}{*}{Manipulability} & \multirow{2}{1.3cm}{Posit. Error} & \multirow{2}{*}{Score}\\
 & & Velocity & Acceleration & & & \\
 \hline
 %Object & Length & Velocity & Acceleration & Dist. to collision & Manipulability & Score \\
 %\hline
-\multirow{5}{1.7cm}{cup}& 199.067 & 0.003 & 0.006 & 7.575 & 0.114 & 2.542 \\ 
-& 198.692 & 0.003 & 0.006 & 7.825 & 0.114 & 2.572 \\ 
-& 165.912 & 0.004 & 0.008 & 7.83 & 0.109 & 2.895 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
+\multirow{5}{1.5cm}{cup}& 199.51 & 0.003 & 0.005 & 9.47 & 0.069 & 0.165 & 4.608 \\ 
+& 179.37 & 0.003 & 0.005 & 9.47 & 0.069 & 0.128 & 3.976 \\ 
+& 147.12 & 0.003 & 0.005 & 9.47 & 0.109 & 0.132 & 3.872 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multirow{5}{1.5cm}{mondamin}& 197.59 & 0.005 & 0.008 & 0.98 & 0.074 & 0.122 & 3.107 \\
+& 197.5 & 0.005 & 0.008 & 0.98 & 0.074 & 0.122 & 3.102 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multirow{5}{1.5cm}{knorr tomate}& 186.98 & 0.002 & 0.003 & 1.59 & 0.06 & 0.13 & 3.223 \\ 
+& 187.11 & 0.002 & 0.003 & 1.59 & 0.06 & 0.122 & 3.093 \\ 
+& 213.46 & 0.002 & 0.003 & 1.59 & 0.069 & 0.118 & 3.075 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multicolumn{8}{|c|}{Initial robot configuration 1} \\
 \hline
-\multirow{5}{1.7cm}{cup}& 198.926 & 0.003 & 0.006 & 7.545 & 0.114 & 2.524 \\ 
-& 198.91 & 0.003 & 0.005 & 7.553 & 0.114 & 2.444 \\ 
-& 165.841 & 0.003 & 0.006 & 7.671 & 0.109 & 2.626  \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{mondamin}& 207.13 & 0.004 & 0.006 & 8.464 & 0.106 & 2.765 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{knorr tomate}& 207.242 & 0.003 & 0.004 & 7.113 & 0.106 & 2.268 \\ 
-& 207.049 & 0.002 & 0.004 & 7.037 & 0.106 & 2.277 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
+\multirow{5}{1.5cm}{mondamin}& \multicolumn{7}{c|}{Collision Found} \\ 
+& \multicolumn{7}{c|}{Collision Found} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\
+\hline 
+\multirow{5}{1.5cm}{knorr tomate}& \multicolumn{7}{c|}{Collision Found} \\ 
+& \multicolumn{7}{c|}{Collision Found} \\ 
+& \multicolumn{7}{c|}{Collision Found} \\ 
+& \multicolumn{7}{c|}{Collision Found} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multicolumn{8}{|c|}{Initial robot configuration 2} \\
 \hline
-\multicolumn{7}{|c|}{Initial robot configuration 1} \\
+\multirow{5}{1.5cm}{cup}& 232.27 & 0.002 & 0.004 & 5.09 & 0.104 & 0.136 & 3.704 \\ 
+& 232.21 & 0.002 & 0.004 & 5.09 & 0.104 & 0.137 & 3.725 \\ 
+& 265.29 & 0.002 & 0.004 & 5.09 & 0.121 & 0.124 & 3.569 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multirow{5}{1.5cm}{mondamin}& 217.06 & 0.002 & 0.004 & 5.3 & 0.099 & 0.13 & 3.603 \\ 
+& 217.05 & 0.002 & 0.004 & 5.3 & 0.099 & 0.131 & 3.625 \\ 
+& 223.87 & 0.002 & 0.004 & 5.3 & 0.029 & 0.109 & 3.427 \\ 
+& 201.21 & 0.002 & 0.004 & 5.3 & 0.022 & 0.143 & 3.933 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multicolumn{8}{|c|}{Initial robot configuration 3} \\
 \hline
-\multirow{5}{1.7cm}{cup}& 168.381 & 0.003 & 0.007 & 7.783 & 0.114 & 2.664 \\ 
-& 168.315 & 0.004 & 0.007 & 7.863 & 0.114 & 2.723 \\ 
-& 212.879 & 0.006 & 0.01 & 3.859 & 0.109 & 3.235 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{mondamin}& \multicolumn{6}{c|}{Collision Found} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{knorr tomate}& 177.493 & 0.003 & 0.005 & 5.256 & 0.106 & 2.214 \\ 
-& 177.396 & 0.003 & 0.005 & 5.222 & 0.106 & 2.224 \\ 
-& 179.126 & 0.003 & 0.004 & 0.938 & 0.102 & 1.656 \\ 
-& 178.228 & 0.003 & 0.005 & 1.87 & 0.102 & 1.902 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
+\multirow{5}{1.5cm}{cup}& 197.29 & 0.003 & 0.005 & 9.41 & 0.105 & 0.135 & 4.059 \\ 
+& 197.28 & 0.003 & 0.005 & 9.41 & 0.105 & 0.136 & 4.076 \\ 
+& 222.05 & 0.003 & 0.005 & 9.41 & 0.13 & 0.129 & 3.967 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multirow{5}{1.5cm}{mondamin}& 326.87 & 0.003 & 0.005 & 7.64 & 0.104 & 0.133 & 4.155 \\ 
+& 327.11 & 0.003 & 0.005 & 7.64 & 0.104 & 0.137 & 4.232 \\ 
+& 322.25 & 0.003 & 0.005 & 7.64 & 0.116 & 0.133 & 4.126 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multirow{5}{1.5cm}{knorr tomate}& 326.49 & 0.004 & 0.009 & 11.26 & 0.103 & 0.134 & 4.585 \\ 
+& 326.37 & 0.004 & 0.009 & 11.26 & 0.103 & 0.134 & 4.58 \\
+& 311.59 & 0.004 & 0.009 & 11.26 & 0.114 & 0.097 & 3.935 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multicolumn{8}{|c|}{Initial robot configuration 4} \\
 \hline
-\multicolumn{7}{|c|}{Initial robot configuration 2} \\
-\hline
-\multirow{5}{1.7cm}{cup}& 168.422 & 0.004 & 0.006 & 7.766 & 0.106 & 2.616 \\ 
-& 251.738 & 0.004 & 0.006 & 4.849 & 0.106 & 2.589 \\ 
-& 256.599 & 0.004 & 0.006 & 7.798 & 0.121 & 2.857 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{mondamin}& \multicolumn{6}{c|}{Collision Found} \\ 
-& \multicolumn{6}{c|}{Collision Found} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{knorr tomate}& 262.007 & 0.003 & 0.004 & 4.215 & 0.099 & 2.266 \\ 
-& 262.175 & 0.003 & 0.006 & 4.143 & 0.099 & 2.412 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline
-\multicolumn{7}{|c|}{Initial robot configuration 3} \\
-\hline
-\multirow{5}{1.7cm}{cup}& 251.659 & 0.003 & 0.006 & 4.798 & 0.104 & 2.549 \\ 
-& 216.303 & 0.004 & 0.007 & 7.56 & 0.104 & 2.836 \\ 
-& 230.28 & 0.004 & 0.008 & 7.55 & 0.13 & 3.053 \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{mondamin}& \multicolumn{6}{c|}{Collision Found} \\ 
-& \multicolumn{6}{c|}{Collision Found} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline\multirow{5}{1.7cm}{knorr tomate}& 226.153 & 0.003 & 0.006 & 4.804 & 0.105 & 2.347 \\ 
-& 226.367 & 0.003 & 0.005 & 4.693 & 0.105 & 2.343 \\ 
-& \multicolumn{6}{c|}{Collision Found} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-& \multicolumn{6}{c|}{Trajectory failed} \\ 
-\hline
-\multicolumn{7}{|c|}{Initial robot configuration 4} \\
-\hline
+\multirow{5}{1.5cm}{cup}& 304.97 & 0.003 & 0.006 & 9.34 & 0.086 & 0.129 & 4.256 \\ 
+& 304.84 & 0.003 & 0.006 & 9.34 & 0.086 & 0.098 & 3.758 \\ 
+& 351.47 & 0.003 & 0.006 & 9.34 & 0.098 & 0.147 & 4.642 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
+\multirow{5}{1.5cm}{mondamin}& 143.47 & 0.001 & 0.003 & 0.18 & 0.019 & 0.113 & 2.787 \\ 
+& 143.52 & 0.001 & 0.003 & 0.18 & 0.019 & 0.112 & 2.773 \\ 
+& 147.02 & 0.001 & 0.003 & 0.18 & 0.04 & 0.108 & 2.66 \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+& \multicolumn{7}{c|}{Trajectory failed} \\ 
+\hline 
 
 \hline 
 

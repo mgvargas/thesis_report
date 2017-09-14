@@ -37,11 +37,17 @@ A general description of the system's architecture is shown in figure \ref{fig:s
 
 The \textit{Object dB} node is in charge of detecting objects and publishing its current location, as well as the defined grasping poses for each object. The object's information is read from a YAML file (section \ref{sec:db}). This node provides a service that publishes a list of found objects.
 
-The component in charge of generating the trajectory is \textit{sim\_controller}, it receives the goal pose, calculates the required velocity for each joint, and sends it to the \textit{naive\_kinematic\_simulator}\footnote{https://github.com/code-iai/iai\_naive\_kinematics\_sim}, which simulates the robot's movements. 
+The component in charge of generating the trajectory is \textit{sim\_controller}, it receives the goal pose, calculates the required velocity for each joint, and sends it to the \textit{naive\_kinematic\_simulator}\footnote{https://github.com/code-iai/iai\_naive\_kinematics\_sim}, which simulates the robot's movements. It uses the controller described in section \ref{sec:motion_controller}.
 
-The \textit{projection\_manager} node coordinates the whole system. It receives the request to grasp an object, asks the \textit{Object dB} if the object was detected and requests the generation of a trajectory to grasp it. The \textit{projection\_manager} requests several trajectories to the \textit{sim\_controller} to have several option to choose from. Then, it sends the trajectories to the \textit{trajectory\_evaluation} service, which evaluates between several proposed trajectories, selects one and sends it back as result. 
+The \textit{projection\_manager} node coordinates the whole system. It receives the request to grasp an object, asks the \textit{Object dB} if the object was detected and requests the generation of a trajectory to the motion controller. 
 
-The \textit{trajectory\_evaluation} service starts by sending each trajectory to the \textit{collision\_detection} service, it a collision is found, the trajectory is discarded. The remaining trajectories are scored based on length, smoothness, minimum distance to a collision object and the manipulability of the arm after reaching the goal. 
+The \textit{projection\_manager} requests several trajectories to the \textit{sim\_controller} to have several options to choose from. It calculates the distance from both EEF to all the object's grasping poses. Base on the distance and the initial manipulability of each arm, selects the most suitable grasping pose (GP) and requests a trajectory to it, then discards this GP and selects the second best one and gets another trajectory. This process is repeated a couple of times to ensure that trajectories reaching different goals with both arms are obtained.
+
+Then, \textit{projection\_manager} sends the trajectories to the \textit{trajectory\_evaluation} service (section \ref{sec:traj_eval}), which evaluates the trajectories, selects one and sends it back as result. 
+
+The \textit{trajectory\_evaluation} service starts by sending each trajectory to the \textit{collision\_detection} service. If a collision is found, the trajectory is discarded. The remaining trajectories are scored based on length, smoothness, minimum distance to a collision object and the manipulability of the arm after reaching the goal. 
+
+Once a trajectory is selected, the \textit{PI Controller} sends it to the robot and ensures that it follows the trajectory.
 
 \section{Perception System}
 \label{sec:perception}
@@ -170,6 +176,17 @@ These constraints will reduce the joint velocities when they are approaching the
 -a_{1,max}\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ a_{1,max}
 \label{eq:accel1}
 \end{equation}
+
+ The maximum acceleration is calculated on every iteration using
+ \begin{subequations}
+ 	\begin{align}
+ 		a_{n,max\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} + a_{n,max} \\
+ 		a_{n,min\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} - a_{n,max}
+ 	\end{align}
+ 	\label{eq:accel}
+ \end{subequations}
+where $n$ is the joint number and $a_{n,max}$ a constant acceleration limit. The acceleration constraint is calculated based on the current joint speed.
+
 Combining equations \ref{eq:goal} to \ref{eq:accel1} to create the constraint bound vectors from equations \ref{eq:constrain} and \ref{eq:constrainA}, we obtain
 \begin{equation}
 \left( \begin{array}{c}
@@ -233,7 +250,7 @@ a_{1,max\_lim} \\
 \label{eq:a_constr}
 \end{equation}
 
-The constrains set by these equations are the groundwork for the basic controllers explained in the following subsections. All these cases simulate a translational 2 DOF system, the goal is to place the EEF at a given position (goal position). The initial position of each joint is given, as well as a goal for the EEF. The initial velocity of the joints is assumed to be zero, but other initial conditions could also be set.
+The constrains set by these equations are the groundwork for the basic controllers explained in the following subsections. All these cases simulate a translational 2 DOF system, the goal is to place the EEF at a given position (goal position). The initial position of each joint is given, as well as a goal for the EEF. In these examples, the initial velocity and acceleration of the joints is assumed to be zero, but other initial conditions can be set.
 
 \subsection{Simple 2 DOF controller}
 A proportional gain for the joints' goal is introduced in order to reduce the number of iterations the program requires to solve the problems. In other words, the proportional gain can be used to increase the joint velocities. This gain is added to equation \ref{eq:init_error}:
@@ -246,9 +263,9 @@ Figures \ref{fig:basic_eef} and \ref{fig:basic} show the position and velocity o
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\linewidth, angle=0]{controllers/basic_eef.png}
+	\includegraphics[width=0.7\linewidth, angle=0]{controllers/basic_eef.png}
 	\vspace{-10pt}
-	\caption[Basic 2 DOF controller: EEF trajectory.] {EEF trajectory. Initial acceleration is limited by constraints. Velocity decreases as EEF aproaches the goal position.}
+	\caption[Basic 2 DOF controller: EEF trajectory.] {EEF trajectory. Initial acceleration is limited by constraints. Velocity decreases as EEF approaches the goal position.}
 	\vspace{-15pt}
 	\label{fig:basic_eef}
 \end{figure}
@@ -265,22 +282,13 @@ Figures \ref{fig:basic_eef} and \ref{fig:basic} show the position and velocity o
 	\vspace{-10pt}
 	\label{fig:basic}
 \end{figure}
-It can be seen that the velocity decreases once the EEF is approaching the desired position, also the joints do not reach the maximum velocity in the first time step. This is due to the acceleration constraint given by equations \ref{eq:accel0} and \ref{eq:accel1}. The maximum acceleration is calculated on every iteration using
-\begin{equation}
-a_{n,max\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} + a_{n,max}
-\label{eq:accelmax}
-\end{equation}
-\begin{equation}
-a_{n,min\_lim}\ \ =\ \ \frac{\dot{q}_{n,max} - a_{n,max}}{\dot{q}_{n,max}} - a_{n,max}
-\label{eq:accelmin}
-\end{equation}
-
-where $n$ is the joint number and $a_{n,max}$ a constant acceleration limit.
+It can be seen that the velocity decreases once the EEF is approaching the desired position, also the joints do not reach the maximum velocity in the first time step. This is due to the acceleration constraint given by equation \ref{eq:accel}.
 
 \subsection{Joints goal and EEF goal}
 This controller allows to specify a goal position for one of the joints as well as for the EEF. Figures \ref{fig:joint_eef} and \ref{fig:joint_0} show the behavior of the EEF and both joints while reaching the specified goals. Each joint has different velocity and acceleration constraints.
 
 In this controller, the weight vector is defined as $\vec{\omega} = [ \omega_{1},\ \omega_{2},\ \omega_{3},\ \omega_{4} ]$. Where $\omega_{1}$ and $\omega_{2}$ are the joint weights, $\omega_{3}$ is the weight of the slack factor and $\omega_{4}$ is the weight of the joint goal. Equation \ref{eq:a_constr} is rewritten as
+
 $$
 \left( \begin{array}{c}
 error \\
@@ -572,13 +580,14 @@ and
 $$error_2 = (q_{des2} - q_{eef})*p $$
 
 where $p$ is the proportional gain and $q_{eef}$ the current position of the EEF. The weights are calculated with:
-\begin{equation}
-\omega_3 = \left( \dfrac{error_2}{error_1 + error_2} \right) ^{2}
-\end{equation}
-\begin{equation}
-\omega_4 = \left( \dfrac{error_1}{error_1 + error_2} \right) ^{2}
-\label{eq:dyn}
-\end{equation}
+\begin{subequations}
+	\begin{align}
+		 \omega_3 = \left( \dfrac{error_2}{error_1 + error_2} \right) ^{2} \\
+		 \omega_4 = \left( \dfrac{error_1}{error_1 + error_2} \right) ^{2}
+	\end{align}
+	\label{eq:dyn}
+	\vspace{-10pt}
+\end{subequations}
 
 The controller will then select the closest goal, which gets a higher weight. 
 
@@ -618,14 +627,13 @@ Figure \ref{fig:dynamic_j} shows the trajectories followed by both joints in the
 A problem seems to appear if dynamic weights are calculated when three or more goals are specified. Taking three goals as an example, if two of them are close together ($q_{des2}$ and $q_{des3}$), the controller will ignore the third goal ($q_{des1}$) and reach for a point between the other two goals, since minimizing two errors is better (mathematically speaking) than one.
 
 This problem can be solved by modifying the formula used to calculate the goal's weights, so we can rewrite equation \ref{eq:dyn} as:
-$$
-\omega_3 = \left(\dfrac{1 - \rvert error_1 - error_{min} \rvert}{error_{max} + error_{min}}\right)^{3} $$
-$$
-\omega_4 = \left(\dfrac{1 - \rvert error_2 - error_{min} \rvert}{error_{max} + error_{min}}\right)^{3} 
-$$
-\begin{equation}
-\omega_5 = \left(\dfrac{1 - \rvert error_3 - error_{min} \rvert}{error_{max} + error_{min}}\right)^{3} 
-\end{equation}
+\begin{subequations}
+	\begin{align}
+		\omega_3 = \left(\dfrac{1 - \rvert error_1 - error_{min} \rvert}{error_{max} + error_{min}}\right)^{3} \\
+		\omega_4 = \left(\dfrac{1 - \rvert error_2 - error_{min} \rvert}{error_{max} + error_{min}}\right)^{3} \\
+		\omega_5 = \left(\dfrac{1 - \rvert error_3 - error_{min} \rvert}{error_{max} + error_{min}}\right)^{3} 
+	\end{align}
+\end{subequations}
 where:
 $$error_{min} = min(\rvert error_1\rvert, \rvert error_2\rvert, \rvert error_3\rvert)\vspace{-10pt}$$ 
 $$error_{max} = max(\rvert error_1\rvert, \rvert error_2\rvert, \rvert error_3\rvert)$$
@@ -709,21 +717,56 @@ where $\dot{q_{0}}$ to $\dot{q_{C}}$ are the joints velocities, three for the ba
 \right]
 \end{equation}
 where $\ \textbf{J}\ \in\ \Re^{p\times m}$ is the Jacobian, $\ \textbf{I}$ is the identity matrix, $\ \textbf{0}$ is a zero matrix, $p$ is the number of DOF and $m$ the number of joints to control. The constraint vectors are created using the error, joint limits and acceleration constraints:
-$$\vec{lbA} = [\ \vec{pos\_error},\ \vec{orient\_error},\ -\vec{q}_{max} - \vec{q},\ \vec{a}_{min\_lim} ]^{T}$$
-$$\vec{ubA} = [\ \vec{pos\_error},\ \vec{orient\_error},\ \vec{q}_{max} - \vec{q},\ \vec{a}_{max\_lim} ]^{T}$$
-where the acceleration limit is calculated using equations \ref{eq:accelmin} and \ref{eq:accelmax}, $\ \vec{q}_{max}$ is the vector of joint limits and $\vec{q}$ the current position of the joints. The $\vec{pos\_error}$ is the position error and $\vec{orient\_error}$ the orientation error.
+\begin{subequations}
+	\begin{align}
+		\vec{lbA} = [\ \vec{error}_{pos},\ \vec{error}_{orient},\ -\vec{q}_{max} - 	\vec{q},\ \vec{a}_{min\_lim} ]^{T}\\
+		\vec{ubA} = [\ \vec{error}_{pos},\ \vec{error}_{orient},\ \vec{q}_{max} - \vec{q},\ \vec{a}_{max\_lim} ]^{T}
+	\end{align}
+	\label{eq:const_vectors}
+\end{subequations}
+where the acceleration limit is calculated using equation \ref{eq:accel}, $\ \vec{q}_{max}$ is the vector of joint limits and $\vec{q}$ the current position of the joints. The $\vec{error}_{pos}$ is the position error and $\vec{error}_{orient}$ the orientation error. 
+
+The position error is calculated  considering a proportional gain, to accelerate the convergence of the system:
+$$\vec{error}_{pos} = (\vec{q}_{des} - \vec{q}_{eef})*p $$
+where $\vec{q}_{des}$ is the goal position, $\vec{q}_{eef}$ the current position of the EEF and $p$ is the proportional gain. 
+
+The orientation error is calculated using quaternion \textit{spherical linear interpolation} (Slerp). The Slerp gives an interpolation between 0 and 1 from the given quaternions. It was developed by \cite{slerp}:
+$$ Slerp(t;q_0,q_1)=\dfrac{q_0\sin((1-t)\theta) + q_1\sin(t\theta)}{\sin\theta} 
+$$
+for $0\ \leq \ t\ \leq 1$. Using Slerp, it was possible to calculate an orientation error for the system set as goal for every iteration a small part of the total error, The Algorithm 2 is used to calculate the error and the obtained quaternion is transformed to euler angles and given as $\vec{error}_{orient}$ to the constraint vectors \ref{eq:const_vectors}.
+\begin{algorithm}[t!]
+	\caption{Orientation Error}\label{algor:error}
+	\begin{algorithmic}[1]
+		\vspace{2pt}
+		\State $rot = q_{eef}\ q_{goal}$;
+		\vspace{3pt}
+		\State $rot_{error}  = \sqrt{rot[0]^{2} + rot[1]^{2} + rot[2]^{2}}$
+		\vspace{3pt}
+		\If{$threshold - rot_{error} \geq 0$} 
+		\vspace{2pt}
+		\State $t = 1$;
+		\vspace{1pt}
+		\Else 
+		\State $threshold / rot_{error}$;\EndIf
+		\vspace{1pt}
+		\State $q_{interpolation} = Slerp\ (t;q_{eef},q_{goal})$;
+		\vspace{1pt}
+		\State $q_{error} = q_{interpolation}\ q_{eef}^{-1}$;
+		\vspace{-1pt}
+	\end{algorithmic}
+\end{algorithm}
 
 The weight vector $\ \vec{\omega}$ is calculated on every iteration. If the robot is too far away from the given goal, the arm joints are disabled and only the base moves. Between a certain distance threshold, both base and arms can move, with the weights dynamically changing in accordance to the distance. If the robot is close to the goal, only the arms and torso are allowed to freely move, the wight of the base is increased so that the controller prefers moving arms and torso to base.
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[][Isometric view]
-		{\includegraphics[width=0.41\linewidth]{boxy/Trajectory_01.png}}
+		{\includegraphics[width=0.41\linewidth]{boxy/Trajectory01.png}}
 	\end{subfigure}
 	\begin{subfigure}[][Top view]
 		{\includegraphics[width=0.4\linewidth]{boxy/TrajectoryParts.png}}
 	\end{subfigure}
 	\vspace{-10pt}
-	\caption[Boxy's Trajectory]{Trajectory (blue) of the EEF. The weights are calculated on every iteration.}
+	\caption[Boxy's Trajectory]{Trajectory (dashed) of the EEF. The weights are calculated on every iteration.}
 	\vspace{-15pt}
 	\label{fig:traj1}
 \end{figure}
@@ -733,45 +776,45 @@ Figure \ref{fig:traj1} shows a simulated trajectory followed by the EEF while re
 The first goal set to the controller is a pre-grasping pose, located three centimeters away on the Z-axis from the current grasping pose. Once the EEF is within a certain position and orientation threshold from the  pre-grasping pose, it moves towards the final grasping pose. The pre-grasping pose is defined to help avoiding collisions with the object, the EEF can approach the object only when the orientation is already correct and will do so in a way that it will not try to go through the object in order to reach the grasping pose.
 
 
------------------------- \\
 \todo{Write some more about the controller}
 
 \section{Trajectory Evaluation}
+\label{sec:traj_eval}
 
 When the projection manager system receives a request to grasp an object, it asks the controller for several trajectories. The trajectory evaluation service is in charge of assigning scores to each one on these trajectories and sending the best one back.
+
+First, each trajectory is sent to the \textit{collision detection} node, if a collision is found, the trajectory gets discarded,of not, the minimum distance between the robot and an object is obtained. The remaining trajectories are then evaluated.
 
 For the evaluation, different metrics are considered
 \begin{itemize}
 	\item Length of the generated path
 	\item Smoothness: No abrupt changes in velocity and acceleration
-	\item Convergence error: How far was the EEF from the desired position
+	\item Convergence error: How far was the arm from the desired position
 	\item Manipulability of the EEF after reaching the goal
 	\item Distance to collision: Minimum distance from the arm to any object in the scene
-	\item Planning time: How long did the controller required to calculate the trajectory
 \end{itemize}
 
+After simulation several experiments, a maximum value for acceleration and velocity change was defined, as well as for manipulability. The maximum length of the trajectory was obtained based on the robot arm workspace. Using these values, a score for each trajectory can be calculated:
+\begin{equation}
+\begin{aligned}
+score = &\ w_l\frac{traj\_length}{max\_length}\ +\ w_v\frac{vel\_change}{max\_vel\_change}\ +\ w_a\frac{acc\_change}{max\_acc\_change} \\
+ & \ +\ w_c\frac{collision\_distance}{min\_col\_distance} 
+\ +\ w_e\frac{position\_error}{max\_position\_error}\\
+ & \ +\ w_m(max\_manip\ -\ manipulability)
+\end{aligned}
+\label{eq:score}
+\end{equation}
+
+
+where $w_l$, $w_v$, $w_a$, $w_c$, $w_e$ $w_m$ are the weights for length, velocity change, acceleration change, distance to collision, convergence error and manipulability, respectively.
+
+The trajectory with the lowest score is selected and sent back to the \textit{projection\_manager}, which sends it as a result to a PI controller. This controller sends the required commands to the robot to execute the trajectory.
+
+
 \section{Collision Checking}
-Since the motion controller is not able to detect collision objects in the environment, it is important to evaluate if the obtained trajectory would generate a collision. To do so, the collision detection functionality of \textit{Moveit! Planning Scene} (section \ref{subsec:moveit}) was used. All objects detected by perception, as well as the collision model of the robot were loaded in a planning scene. The robot's URDF (section \ref{sec:urdf}) is also added to the planning scene, this allows to evaluate if the robot is in a valid state (feasibility) and to calculate the state of the robot given the joint values.
+Since the motion controller is not able to detect collision objects in the environment, it is important to evaluate if the obtained trajectory would generate a collision if executed. To do so, the collision detection functionality of \textit{Moveit! Planning Scene} (section \ref{subsec:moveit}) was used. All objects detected by perception, as well as the collision model of the robot were loaded in a planning scene. The robot's URDF (section \ref{sec:urdf}) is also added to the planning scene, this allows to evaluate if the robot is in a valid state (feasibility) and to calculate the state of the robot given the joint values.
 
 The object the robot will grasp is removed from the collision objects, since the grasping would be considered as a collision. This has the disadvantage that the robot's EEF might hit the object while reaching for the grasping pose and the collision detection would not perceive it. In order to reduce the possibility of this collision, a pre-grasping pose is set as initial goal for the EEF, this pose is located 3 cm away from the object. Only after the EEF has reached the pre-grasing pose, it approaches to the object.
 
 For every step in the trajectory, the new joint values are loaded in the robot model. The planning scene evaluates if the robot is in a valid state and if there is any collision, both self-collisions and collisions with the environment are considered. If no collision was found, the minimum distance to an object is stored. The evaluation stops if a collision is found and the trajectory is discarded.
-
-\section{Hardware and Software requirements}
-\label{subsec:software}
-\todo[inline]{improve this section}
-
-This project was developed in a computer running on Ubuntu 14.04, no special hardware is required to execute the generated code.
-
-However, the user needs to have some programs and packages installed: 
-\begin{itemize}
-	\item \textbf{ROS:} With a configured workspace. The ROS distro used was \textit{indigo}
-	\item \textbf{MoveIt!:} Requires previous installation of ROS
-	\item \textbf{UR3 driver:} A recommended one is \texttt{ur\_modern\_driver}
-	\item \textbf{Boxy repositories:} The \texttt{iai\_boxy} and \texttt{iai\_robots} from the IAI github repository\footnote{\url{https://github.com/code-iai}}
-	\item \textbf{UR3 MoveIt configuration:} The code generated as a result of this project\footnote{\url{https://github.com/mgvargas/Moveit_config}}
-\end{itemize}
-
-
-After installing ROS and MoveIt!, the user has to download the specified repositories from Github. 
 
