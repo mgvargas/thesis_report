@@ -38,8 +38,9 @@ Object grasping and manipulation  constitutes a big challenge in the robotics fi
 \begin{itemize}
 	\item Identify the object and its position with respect to the robot. This is done by a perception system which analyzes the information provided from sensors, normally cameras.
 	\item Decide how to grasp the object. Usually, an object can be grasped in several ways. Taking a cup as example, it can be grabbed from the handle, from the cup body or from the top edge (figure \ref{fig:obj_grasp_pose}). The system should be able to decide which one of this \textbf{grasping poses} is better depending on the situation.
-	\item Generate and execute a trajectory that moves the end effector (EEF) from its current location to the selected grasping pose. This includes trajectory generation and motion control.
-	\item Evaluate if the obtained trajectory will generate a collision with the robot itself or the environment. Discard the trajectories where collisions were detected.
+	\item Generate trajectories that move the end effector (EEF) from its current location to the selected grasping pose. This includes trajectory generation and motion control.
+	\item Evaluate if the obtained trajectories will generate a collision with the robot itself or the environment. Discard the trajectories where collisions were detected.
+	\item Send the best trajectory to a PI controller that will send the corresponding commands to the robot to execute it.
 \end{itemize}
 
 Being able to grasp an object is an essential ability in robot manipulation. Having a system that autonomously locates and grasp an object using \textit{On-line Trajectory Generation (OTG)} gives great flexibility to the robot. OTG grants the capability of modifying the trajectory during execution, it implies recalculating the trajectory on every control cycle . By doing this, the system is able to react instantaneously to unexpected events, such as a change in the goal position.
@@ -74,13 +75,15 @@ As result, it is expected a system with a parametrized motion controller that ge
 \section{Contributions}
 % Data, software, algorithms, designs, etc... made by me. If the problem was solved, how was that done?
 
-The main contribution of this work was the development of a projection system for trajectory planning (section \ref{sec:sys_description}). This system uses a naive kinematic simulator of the robot to generate several possible trajectories. Each one of the obtained trajectories is evaluated and scored and one is selected to be executed by the real robot. Some of the evaluation criteria are trajectory smoothness and length, manipulability of the robot after the goal position is reached and collisions during the trajectory simulation.
+The main contribution of this work was the development of a projection system for trajectory planning (section \ref{sec:sys_description}). This system uses a naive kinematic simulator (section \ref{sub:naive}) of the robot to generate several possible trajectories. Each one of the obtained trajectories is evaluated and scored and one is selected to be executed by the real robot. Some of the evaluation criteria are trajectory smoothness and length, manipulability of the robot after the goal position is reached and collisions during the trajectory simulation.
 
-The collision detection was developed using Moveit! Planning scene\footnote{http://moveit.ros.org/} (section \ref{subsec:moveit}). The system is not able to consider collision avoidance while generating a trajectory, but the collision detection system discards all trajectories that would generate a collision with the robot itself or with the environment.
+The collision detection was developed using Moveit! Planning scene\footnote{http://moveit.ros.org/} (section \ref{subsec:moveit}). The system is not able to consider collision avoidance while generating a trajectory, but the collision detection system discards all trajectories that would generate a collision with the robot itself or with the environment (section \ref{sec:collision}).
 
-During the development of this work, an object database was created with 3D models of several objects and predefined grasping poses for each object.
+During the development of this work, an object database was created(section \ref{sec:db}) with 3D models of several objects and predefined grasping poses for each object. The object models were created using a 3D scanner. The gripper and furniture models were done in a CAD program.
 
-In order to detect the objects located in front of the robot, a perception system that used fiducial markers was developed as side product (section \ref{sec:perception}).
+In order to detect the objects located in front of the robot, I developed a perception system that uses fiducial markers as side product (section \ref{sec:perception}).
+
+The robot moves by receiving a sequence of velocity commands for the joints, so it is not possible to send a trajectory at once, it has to be sent step by step. A simple PI controller was created to send the obtained trajectory to the robot (section \ref{sec:pi}).
 
 
 \section{Structure of the thesis}

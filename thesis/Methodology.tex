@@ -116,7 +116,7 @@ Several simple controllers were built and tested in order to understand the char
 where $\dot{q_{0}}$ is the velocity of the first joint, $\dot{q_{1}}$ the velocity of the second joint, and $\epsilon$ is a slack variable. Introducing this vector in the cost function (eq. \ref{eq:cost_in}) and setting the gradient $\vec{g}$ to zero:
 \begin{equation}
 \underset{\vec{s}}{\min}\ c(\vec{s})\ =\  \underset{\vec{s}}{\min}\ \left( \frac{1}{2} \ \vec{s}' \ \textbf{H} \ \vec{s} \right)
-\label{eq:cost}
+\label{eq:min_cost}
 \end{equation}
 with the minimization constraints given by:
 \begin{equation}
@@ -131,9 +131,10 @@ We define different weights for each parameter of the state vector $\vec{s}$ by 
 $$
 \textbf{H}\ =\ diag(\vec{\omega})
 $$
-with the weight vector $\vec{\omega} \in \Re^{nV}$. These weights allow us to prioritize the movement of one specific joint over the others, considering that the cost function for the 2 DOF controller from eq \ref{eq:cost} is given by:
+with the weight vector $\vec{\omega} \in \Re^{nV}$. These weights allow us to prioritize the movement of one specific joint over the others, considering that the cost function for the 2 DOF controller from eq \ref{eq:min_cost} is given by:
 \begin{equation}
 c(\vec{s})\ =\ \frac{1}{2} \ \vec{s}' \ \textbf{H} \ \vec{s} =\ \frac{1}{2} \ (\ \dot{q_{0}}^{2}\omega_{1} + \dot{q_{1}}^{2}\omega_{2} + \epsilon^{2}\omega_{3})
+\label{eq:cost}
 \end{equation}
 
 The software will try to minimize the cost of solving the problem by setting a higher value for the variables with a lower weight.
@@ -730,15 +731,19 @@ The position error is calculated  considering a proportional gain, to accelerate
 $$\vec{error}_{pos} = (\vec{q}_{des} - \vec{q}_{eef})*p $$
 where $\vec{q}_{des}$ is the goal position, $\vec{q}_{eef}$ the current position of the EEF and $p$ is the proportional gain. 
 
-The orientation error is calculated using quaternion \textit{spherical linear interpolation} (Slerp). The Slerp gives an interpolation between 0 and 1 from the given quaternions. It was developed by \cite{slerp}:
+However, calculating the orientation error cannot be done by simply subtracting goal orientation from the current one. Several approaches for solving this problem are explained by \cite{siciliano}. In this work, the orientation error is calculated using quaternion \textit{spherical linear interpolation} (Slerp). The Slerp gives an interpolation between 0 and 1 from the given quaternions. It was developed by \cite{slerp}:
 $$ Slerp(t;q_0,q_1)=\dfrac{q_0\sin((1-t)\theta) + q_1\sin(t\theta)}{\sin\theta} 
 $$
-for $0\ \leq \ t\ \leq 1$. Using Slerp, it was possible to calculate an orientation error for the system set as goal for every iteration a small part of the total error, The Algorithm 2 is used to calculate the error and the obtained quaternion is transformed to euler angles and given as $\vec{error}_{orient}$ to the constraint vectors \ref{eq:const_vectors}.
+for $0\ \leq \ t\ \leq 1$. Using Slerp, it was possible to calculate an orientation error for the system set as goal for every iteration a small part of the total error. Using the quaternion obtained by the Slerp, the error can be calculated, as explained by \cite{siciliano}, as:
+$$ q_{error} = q_{goal} * q_{current}^{-1} $$
+The Algorithm 2 is used to calculate the error and the obtained quaternion is transformed to euler angles and given as $\vec{error}_{orient}$ to the constraint vectors \ref{eq:const_vectors}.
 \begin{algorithm}[t!]
-	\caption{Orientation Error}\label{algor:error}
+	\caption{Orientation Error using Slerp}\label{algor:error}
 	\begin{algorithmic}[1]
 		\vspace{2pt}
-		\State $rot = q_{eef}\ q_{goal}$;
+		\State $q_{whole\_error} = q_{goal} *\ q_{eef}^{-1}$;
+		\vspace{2pt}
+		\State $rot_{vector} = quat\_to\_axisangle(\ q_{whole\_error})$;
 		\vspace{3pt}
 		\State $rot_{error}  = \sqrt{rot[0]^{2} + rot[1]^{2} + rot[2]^{2}}$
 		\vspace{3pt}
@@ -751,12 +756,19 @@ for $0\ \leq \ t\ \leq 1$. Using Slerp, it was possible to calculate an orientat
 		\vspace{1pt}
 		\State $q_{interpolation} = Slerp\ (t;q_{eef},q_{goal})$;
 		\vspace{1pt}
-		\State $q_{error} = q_{interpolation}\ q_{eef}^{-1}$;
+		\State $q_{error} = q_{interpolation} *\ q_{eef}^{-1}$;
 		\vspace{-1pt}
 	\end{algorithmic}
 \end{algorithm}
 
-The weight vector $\ \vec{\omega}$ is calculated on every iteration. If the robot is too far away from the given goal, the arm joints are disabled and only the base moves. Between a certain distance threshold, both base and arms can move, with the weights dynamically changing in accordance to the distance. If the robot is close to the goal, only the arms and torso are allowed to freely move, the wight of the base is increased so that the controller prefers moving arms and torso to base.
+
+The weight vector $\ \vec{\omega}$ is calculated on every iteration and used to update matrix $\textbf{H}$, which is used to calculate the cost in equation \ref{eq:cost}. 
+\begin{equation}
+	\textbf{H}\ =\ diag(\vec{\omega})
+	\label{eq:h}
+\end{equation}
+
+If the robot is too far away from the given goal, the arm joints are disabled and only the base moves. Between a certain distance threshold, both base and arms can move, with the weights dynamically changing in accordance to the distance. If the robot is close to the goal, only the arms and torso are allowed to freely move, the wight of the base is increased so that the controller prefers moving arms and torso to base.
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[][Isometric view]
@@ -774,9 +786,6 @@ The weight vector $\ \vec{\omega}$ is calculated on every iteration. If the robo
 Figure \ref{fig:traj1} shows a simulated trajectory followed by the EEF while reaching out for a cup. The left area in figure \ref{fig:traj1} (b) shows the part of the trajectory where only the base was moved, the middle area is where arms, torso and base were active and the right area is where only the arm and torso were used.
 
 The first goal set to the controller is a pre-grasping pose, located three centimeters away on the Z-axis from the current grasping pose. Once the EEF is within a certain position and orientation threshold from the  pre-grasping pose, it moves towards the final grasping pose. The pre-grasping pose is defined to help avoiding collisions with the object, the EEF can approach the object only when the orientation is already correct and will do so in a way that it will not try to go through the object in order to reach the grasping pose.
-
-
-\todo{Write some more about the controller}
 
 \section{Trajectory Evaluation}
 \label{sec:traj_eval}
@@ -812,9 +821,30 @@ The trajectory with the lowest score is selected and sent back to the \textit{pr
 
 
 \section{Collision Checking}
+\label{sec:collision}
 Since the motion controller is not able to detect collision objects in the environment, it is important to evaluate if the obtained trajectory would generate a collision if executed. To do so, the collision detection functionality of \textit{Moveit! Planning Scene} (section \ref{subsec:moveit}) was used. All objects detected by perception, as well as the collision model of the robot were loaded in a planning scene. The robot's URDF (section \ref{sec:urdf}) is also added to the planning scene, this allows to evaluate if the robot is in a valid state (feasibility) and to calculate the state of the robot given the joint values.
 
 The object the robot will grasp is removed from the collision objects, since the grasping would be considered as a collision. This has the disadvantage that the robot's EEF might hit the object while reaching for the grasping pose and the collision detection would not perceive it. In order to reduce the possibility of this collision, a pre-grasping pose is set as initial goal for the EEF, this pose is located 3 cm away from the object. Only after the EEF has reached the pre-grasing pose, it approaches to the object.
 
 For every step in the trajectory, the new joint values are loaded in the robot model. The planning scene evaluates if the robot is in a valid state and if there is any collision, both self-collisions and collisions with the environment are considered. If no collision was found, the minimum distance to an object is stored. The evaluation stops if a collision is found and the trajectory is discarded.
 
+\section{PI Controller}
+
+The Boxy robot moves by receiving a sequence of velocity commands for the joints. This means if the robot receives the command "move the base at $0.5\frac{m}{sec}$" during 2 seconds, it will execute this movement for two seconds. Therefore it is not possible to send a whole trajectory at once and expect the robot to move, since the trajectory is a sequence of desired positions and velocities.
+
+The proportional and integral controller (PI controller) reads the trajectory step by step and sends the specified position for each joint. It reads the time stamps of the trajectory to find out where the robot should be after a certain time interval. It uses a proportional gain and an integral gain to compensate for the robot's inertia. 
+
+The \textit{naive\_kinematic\_simulator} (section \ref{sub:naive}) used to generate the trajectories assumes that the robot will instantaneously execute the received commands and reached the desired speed. In reality, the robot needs some time to reach a certain speed due to inertia. The motion controller tries to consider this delay by setting acceleration limits while calculating the trajectories, but it stills needs some help from the PI controller to make the robot follow the desired trajectory.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\linewidth]{pi_controller.png}
+	\vspace{-10pt}
+	\caption{Diagram of PI Controller}
+	\vspace{-15pt}
+	\label{fig:pi}
+\end{figure}
+
+Figure \ref{fig:pi} shows the diagram of the PI controller used. It was tuned to work with the Boxy robot first by tunning it with the \textit{naive\_kinematic\_simulator} and afterwards with the real robot.
+
+\todo{add plots}

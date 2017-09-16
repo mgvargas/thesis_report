@@ -46,14 +46,39 @@ Here you can find all the Github repositories with the code required to run this
 
 	\hspace{1cm} \texttt{\url{https://github.com/code-iai/iai_naive_kinematics_sim}}
 \end{itemize}
-.\\ .\\ .\\ 
+
+In the Readme file of the \texttt{iai\_trajectory\_generation\_boxy} package, you can find the instructions to install all the required repositories.
 
 \section{Code Execution}
+
+The \texttt{projection\_system.launch} is the main launch file, contained in the \texttt{iai\_trajectory\_\\generation\_boxy} package. Here, you can configure if the system will be executed on the robot or just as simulation. When the \texttt{sim} argument is \texttt{false} and the \texttt{boxy} is \texttt{true}, the system is configured to run on the Boxy robot receiving images from the Microsoft Kinect 2.
+
+To configure the topics where the projection system subscribes to, you must change the corresponding parameters in the \texttt{markers\_detection.launch} file of the \texttt{iai\_markers\_tracking} package.
+
+In order to send a command to the robot, you must send a request to the \texttt{ProjectedGrasping} action with the name of the object to grasp. This can be done simply by publishing the command to a ROS topic:
+
+\begin{lstlisting}
+rostopic pub /projected_grasping_server/goal iai_trajectory_generation_boxy/ProjectedGraspingActionGoal "header:
+seq: 0
+stamp:
+secs: 0
+nsecs: 0
+frame_id: ''
+goal_id:
+stamp:
+secs: 0
+nsecs: 0
+id: 'SOME_ID'
+goal:
+object: 'OBJECT_NAME'" 
+
+\end{lstlisting}
+
+The object must be already in the database for the robot to detect it and have the possible grasping poses available. 
+
+New objects can be added any time to the \texttt{database.yaml} file of the \texttt{iai\_markers\_tracking} package following the same syntax of the other objects, explained in section \ref{sec:db}.
+
+The file \texttt{send\_commands\_to\_boxy.py} contains the PI controller in charged of sending the obtained trajectory to the robot.
+
 \todo{explain how to run the code. Required?}
-\subsection{Perception system}
 
-\subsection{Robot}
-
-\subsubsection{Target: Single Goal (or One-hand grasping)}
-
-\subsubsection{Target: Multiple goals (or Two-hand grasping)}
