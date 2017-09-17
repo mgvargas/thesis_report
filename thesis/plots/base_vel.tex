@@ -24,6 +24,10 @@ xticklabels=None
 ]
 \addlegendimage{no markers, red}
 \addlegendimage{no markers, blue}
+\draw[dashed] (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 93,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
+\draw[dashed] (axis cs: 199,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 199,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
 \addplot [very thick, red, dashed]
 table {%
 0 0

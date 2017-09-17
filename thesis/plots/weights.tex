@@ -19,14 +19,18 @@ ymajorgrids,
 y grid style={white},
 axis line style={white},
 axis background/.style={fill=white!89.803921568627459!black},
-legend style={at={(0.5,0.09)}, anchor=south, draw=white!80.0!black, fill=white!89.803921568627459!black},
+legend style={at={(0.1,0.09)}, anchor=south, draw=white!80.0!black, fill=white!89.803921568627459!black},
 legend entries={{arm},{base},{torso}},
 legend cell align={left},
 xticklabels=None
 ]
 \addlegendimage{no markers, green!50.0!black}
-\addlegendimage{no markers, black}
+\addlegendimage{no markers, teal}
 \addlegendimage{no markers, color0}
+\draw[dashed] (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 93,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
+\draw[dashed] (axis cs: 199,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 199,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
 \addplot [very thick, green!50.0!black, dash pattern=on 1pt off 3pt on 3pt off 3pt]
 table {%
 1 10
@@ -266,7 +270,7 @@ table {%
 235 0.1
 236 0.1
 };
-\addplot [very thick, black, dashed]
+\addplot [thick, teal, dashed]
 table {%
 1 0.1
 2 0.1

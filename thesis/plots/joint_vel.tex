@@ -30,10 +30,14 @@ legend cell align={left}
 \addlegendimage{no markers, color0}
 \addlegendimage{no markers, color1}
 \addlegendimage{no markers, color2}
-\addlegendimage{no markers, pink}
+\addlegendimage{no markers, teal}
 \addlegendimage{no markers, black}
 \addlegendimage{no markers, color3}
 \addlegendimage{no markers, color4}
+\draw[dashed] (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 93,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
+\draw[dashed] (axis cs: 199,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 199,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
 \addplot [very thick, color0, mark=*, mark size=1, mark options={solid}, only marks]
 table {%
 0 0
@@ -397,7 +401,7 @@ table {%
 232 -0.0924214162551397
 234 -0.0826200742756783
 };
-\addplot [very thick, pink, mark=asterisk*, mark size=1, mark options={solid}, only marks]
+\addplot [very thick, teal, mark=asterisk*, mark size=1, mark options={solid}, only marks]
 table {%
 0 0
 2 -5.42101086242752e-20

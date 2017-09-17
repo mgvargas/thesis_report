@@ -83,17 +83,17 @@ During the development of this work, an object database was created(section \ref
 
 In order to detect the objects located in front of the robot, I developed a perception system that uses fiducial markers as side product (section \ref{sec:perception}).
 
-The robot moves by receiving a sequence of velocity commands for the joints, so it is not possible to send a trajectory at once, it has to be sent step by step. A simple PI controller was created to send the obtained trajectory to the robot (section \ref{sec:pi}).
+The robot moves by receiving a sequence of velocity commands for the joints, so it is not possible to send a trajectory at once, it has to be sent step by step. A simple PI controller was created to send the obtained trajectory to the robot (section \ref{sec:pi_controller}).
 
 
 \section{Structure of the thesis}
 
-The first chapter explains the aim of this work and the motivation behind it, as well as the outcomes of it. The second chapter explains the theory behind the algorithms of this thesis and some useful concepts. It starts by describing come basic concepts for trajectory planning in robotics, such as kinematic models and collision environment. Afterwards it explains some motion planning algorithms, including the one used in this work. In the end, it gives a short description of the  software used by the system.
+The first chapter explains the aim of this work and the motivation behind it, as well as the outcomes of it. The second chapter explains the theory behind the algorithms of this thesis and some useful concepts. It starts by describing some basic concepts for trajectory planning in robotics, such as kinematic models and collision environment. Afterwards it explains some motion planning algorithms, including the one used in this work. In the end, it gives a short description of the  software used by the system.
 
-Chapter three depicts all the elements of the system created in this work. First, it shows the system architecture and starts describing them. At first, the perception system is explained, afterwards comes the structure of the database where the object's models and descriptions are stored. The third section explains the motion controller, the main component of this work. Then it gives a brief explanation of the trajectory evaluation and collision checking. 
+Chapter three depicts all the elements of the system created in this work. First, it shows the system architecture and starts describing them. At first, the perception system is explained, afterwards comes the structure of the database where the object's models and descriptions are stored. The third section explains the motion controller, the main component of this work. Then it gives a brief explanation of the trajectory evaluation and collision checking. Afterward describes the PI controller used to send the trajectories to the Boxy robot.
 
+The fourth chapter displays the results of this works and describes the evaluation of the generated trajectories. It starts by describing the two types of experiments made: simulated and on the real robot,and the environment for each of them. Thereafter, it describes the behavior of the controller during one of the simulated trajectories. Then it shows tables of the generated trajectories, where the evaluation is shown. In the end, the results of the trajectories executed on the real robot are shown.
 
-%Finally it states the software and hardware where the code was generated and executed.
-\todo{write}
+The fifth and last chapter discuses the results shown in chapter four. It also provides a short summary about the contributions of this work and proposes further improvements. The repercussions and applications of this system are also stated.
 
-
+For the ones interested in using this work, the appendix provides links to the Github repositories with all the code generated and a short explanation on how to execute it.

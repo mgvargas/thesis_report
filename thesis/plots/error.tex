@@ -19,6 +19,10 @@ axis line style={white},
 axis background/.style={fill=white!89.803921568627459!black},
 xticklabels=None
 ]
+\draw[dashed] (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 93,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
+\draw[dashed] (axis cs: 199,\pgfkeysvalueof{/pgfplots/ymin}) -- 
+(axis cs: 199,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
 \addplot [thick, black, forget plot]
 table {%
 1 2.02725129315476

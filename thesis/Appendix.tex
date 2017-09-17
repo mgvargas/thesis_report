@@ -31,18 +31,18 @@ However, the user needs to have some software and packages installed:
 Here you can find all the Github repositories with the code required to run this project.
 
 \begin{itemize}
-	\item Code generated during this project:
+	\item Code generated during this project:\vspace{-0.5cm}
 	
-	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/iai_markers_tracking}}
+	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/iai_markers_tracking}}\vspace{-0.5cm}
 	
-	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/iai_trajectory_generation_boxy}}
+	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/iai_trajectory_generation_boxy}}\vspace{-0.1cm}
 
-	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/qpOASES}}	
-	\item Boxy's model and description:
+	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/qpOASES}}\vspace{-0.5cm}	
+	\item Boxy's model and description:\vspace{-0.5cm}
 	
-	\hspace{1cm} \texttt{\url{https://github.com/code-iai/iai_robots}} 
+	\hspace{1cm} \texttt{\url{https://github.com/code-iai/iai_robots}}\vspace{-0.5cm} 
 	
-	\item Robot's kinematic simulator:
+	\item Robot's kinematic simulator:\vspace{-0.5cm}
 
 	\hspace{1cm} \texttt{\url{https://github.com/code-iai/iai_naive_kinematics_sim}}
 \end{itemize}
@@ -71,7 +71,6 @@ nsecs: 0
 id: 'SOME_ID'
 goal:
 object: 'OBJECT_NAME'" 
-
 \end{lstlisting}
 
 The object must be already in the database for the robot to detect it and have the possible grasping poses available. 
@@ -80,5 +79,4 @@ New objects can be added any time to the \texttt{database.yaml} file of the \tex
 
 The file \texttt{send\_commands\_to\_boxy.py} contains the PI controller in charged of sending the obtained trajectory to the robot.
 
-\todo{explain how to run the code. Required?}
 

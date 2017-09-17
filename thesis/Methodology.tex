@@ -76,7 +76,7 @@ All the information about the objects is stored in a YAML file that works as dat
 
 \lstinputlisting[language=Python]{codes/db.yaml}
 
-This structure is filled for every object the robot will grasp and added at the end of the YAML file.
+This structure is filled for every object the robot will grasp and added at the end of the YAML file.a
 
 \subsection{Grasping Poses}
 
@@ -103,7 +103,7 @@ The motion control system used  to generate and control the movement of the robo
 \underset{\vec{x}}{\min}\ c(x)\ =\  \underset{\vec{x}}{\min}\ \left( \frac{1}{2} \ \vec{x}\ ' \ \textbf{H} \ \vec{x} + \vec{x}\ ' \ \vec{g}(\omega_{0}) \right)
 \label{eq:cost_in}
 \end{equation}
-Where $H \in \Re^{nV\times nV}$ is a symmetric and positive (semi-)definite Hessian matrix and $\vec{g} \in \Re^{nV}$ is a gradient vector that depends on the parameter $\omega_{0}$, with $nV$ being the length of the vector $\vec{x}$. The software tries to minimize the cost function $c(x)$. This minimization is subject to the following constraints:
+Where $H \in \Re^{nV\times nV}$ is a symmetric and positive (semi-) definite Hessian matrix and $\vec{g} \in \Re^{nV}$ is a gradient vector that depends on the parameter $\omega_{0}$, with $nV$ being the length of the vector $\vec{x}$. The software tries to minimize the cost function $c(x)$. This minimization is subject to the following constraints:
 $$\vec{lb}(\omega_{0})\ \leq\ \vec{x}\ \leq\ \vec{ub}(\omega_{0})$$
 $$\vec{lbA}(\omega_{0})\ \leq\ \textbf{A}\vec{x}\ \leq\ \vec{ubA}(\omega_{0})$$
 where $\vec{lb}$, $\vec{ub} \in \Re^{nV}$ are the lower and upper constraint bound vectors of $\vec{x}$, the matrix $\textbf{A} \in \Re^{nC\times nV}$ is the constrain matrix with the lower and upper constraint boundary vectors $\vec{lbA}$, $\vec{ubA} \in \Re^{nV}$. Equality constraints can be achieved by setting equal upper and lower boundaries.
@@ -163,10 +163,10 @@ where $\epsilon_{max}\ \gg\ q_{0,max},\ q_{1,max}$. The weight of the slack valu
 
 The joint limits also have to be taken into consideration:
 \begin{equation}
--q_{0,max} - q_{0}\ \ \leq\ \ \dot{\ q_{0}}\ \leq\ \ q_{0,max} - q_{0}
+(-q_{0,max} - q_{0})\ \ \leq\ \ \dot{\ q_{0}}\ \leq\ \ (q_{0,max} - q_{0})
 \end{equation}
 \begin{equation}
--q_{1,max} - q_{1}\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ q_{1,max} - q_{1}
+(-q_{1,max} - q_{1})\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ (q_{1,max} - q_{1})
 \end{equation}
 These constraints will reduce the joint velocities when they are approaching the limits until they reach zero at joint limit. The obtained velocity is the velocity the joints would require to reach the goal potion in one time instant. However, due to physical limitations, joints can not immediately reach maximum velocity in one time step, so acceleration limits have to be established:
 \begin{equation}
@@ -254,7 +254,7 @@ a_{1,max\_lim} \\
 The constrains set by these equations are the groundwork for the basic controllers explained in the following subsections. All these cases simulate a translational 2 DOF system, the goal is to place the EEF at a given position (goal position). The initial position of each joint is given, as well as a goal for the EEF. In these examples, the initial velocity and acceleration of the joints is assumed to be zero, but other initial conditions can be set.
 
 \subsection{Simple 2 DOF controller}
-A proportional gain for the joints' goal is introduced in order to reduce the number of iterations the program requires to solve the problems. In other words, the proportional gain can be used to increase the joint velocities. This gain is added to equation \ref{eq:init_error}:
+A proportional gain, $p$, for the joints' goal is introduced in order to reduce the number of iterations the program requires to solve the problems. In other words, the proportional gain can be used to increase the joint velocities. This gain is added to equation \ref{eq:init_error}:
 \begin{equation}
 error\ =\ p\ *\ \left(q_{eef,des} - q_{eef}\right)
 \end{equation}
@@ -564,7 +564,7 @@ By inverting the weights, $\omega_{3} = 0.001$ and $\omega_{4} = 0.1$, the activ
 It is possible to make the EEF reach a point between both goals, by setting similar or equal weights to both goals (figure \ref{fig:goal2}). 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\linewidth, angle=0]{controllers/multip_3.png}
+	\includegraphics[width=0.6\linewidth, angle=0]{controllers/multip_3.png}
 	\vspace{-10pt}
 	\caption[Multiple goals: Middle point]{Trajectory (dashed) and velocity  of the EEF. Same weight in both goals. Each joint has a different velocity and acceleration constraint, as well as different joint limits.}
 	\vspace{-15pt}
@@ -575,7 +575,7 @@ If the weight of both goals is similar, the EEF will stay closer to one goal, wi
 
 \subsection{Dynamic weights}
 
-It is possible to automatically select between two goals using dynamic weights, which change with the distance. This controller calculates the goals' weight in every iteration, with the error to the goals $q_{des1}$ and $q_{des2}$ as: 
+It is possible to automatically select between two goals using dynamic weights, which change with the distance. This controller calculates the weight of each goal in every iteration, with the error to the goals $q_{des1}$ and $q_{des2}$ as: 
 $$error_1 = (q_{des1} - q_{eef})*p $$
 and
 $$error_2 = (q_{des2} - q_{eef})*p $$
@@ -701,7 +701,7 @@ The code generated for this controllers can be downloaded from Github\footnote{h
 
 \subsection{Robot controller}
 
-A controller with the same structure as the ones showed in the previous subsections was developed for the Boxy robot. Boxy's geometry and kinematics are taken from the URDF file (section \ref{sec:urdf}). 
+A controller with the same structure as the ones shown in the previous subsections was developed for the Boxy robot. Boxy's geometry and kinematics are taken from the URDF file (section \ref{sec:urdf}). 
 
 The definition of the matrix \textbf{A} and of the state vector $\ \vec{s}\ \in\ \Re^{nV}$ changes due to the DOF's and kinematics of the robot, so equation \ref{eq:state} changes to:
 \begin{equation}
@@ -745,9 +745,9 @@ The Algorithm 2 is used to calculate the error and the obtained quaternion is tr
 		\vspace{2pt}
 		\State $rot_{vector} = quat\_to\_axisangle(\ q_{whole\_error})$;
 		\vspace{3pt}
-		\State $rot_{error}  = \sqrt{rot[0]^{2} + rot[1]^{2} + rot[2]^{2}}$
+		\State $rot_{error}  = \sqrt{rot_{vector}[0]^{2} + rot_{vector}[1]^{2} + rot_{vector}[2]^{2}}$
 		\vspace{3pt}
-		\If{$threshold - rot_{error} \geq 0$} 
+		\If{$\ t = threshold - rot_{error} \geq 0\ $} 
 		\vspace{2pt}
 		\State $t = 1$;
 		\vspace{1pt}
@@ -768,7 +768,42 @@ The weight vector $\ \vec{\omega}$ is calculated on every iteration and used to 
 	\label{eq:h}
 \end{equation}
 
-If the robot is too far away from the given goal, the arm joints are disabled and only the base moves. Between a certain distance threshold, both base and arms can move, with the weights dynamically changing in accordance to the distance. If the robot is close to the goal, only the arms and torso are allowed to freely move, the wight of the base is increased so that the controller prefers moving arms and torso to base.
+The value of the weights depends on the distance between the robot and the goal, the calculations are explained in algorithm \ref{algor:weight}. Where $distance$ is the distance between the EEF and the goal, $weight_{active}$ and $weight_{inactive}$ are constant values, $weight_{active} \ll weight_{inactive}$, $far$ and $near$ are threshold distances.
+
+\begin{algorithm}[t!]
+	\caption{Dynamic weight calculation}\label{algor:weight}
+	\begin{algorithmic}[1]
+		\vspace{2pt}
+		\If {$\ distance\ \geq far\ $}
+		\vspace{2pt}
+		\State $weights_{base} = weight_{active}$;
+		\State $weight_{torso} = weight_{active}$;
+		\vspace{2pt}
+		\For {n in joints}
+		\State $weights_{arm}[n] = weight_{inactive}$;
+		\EndFor
+		\ElsIf {$\ near \leq pos_{robot}\ \leq far\ $}
+		\vspace{3pt}
+		\For {n in joints}
+		\State $weights_{arm}[n] = \dfrac{(weight_{inactive} - weight_{active})*(distance - near)}{far - near} + weight_{active}$;
+		\EndFor
+		\State $weights_{base} = \dfrac{(weight_{active} - weight_{inactive})*(distance - near)}{far - near} + weight_{inactive}$;
+		\State $weight_{torso} = weights_{base}$;
+		\Else
+		\vspace{2pt}
+		\State $weights_{base} = weight_{inactive}$;
+		\vspace{2pt}
+		\State $weight_{torso} = \dfrac{(weight_{active} - weight_{inactive})*(abs(error_{pos}[2]))}{far} + weight_{inactive}$;
+		\For {n in joints}
+		\vspace{2pt}
+			\State $weights_{arm}[n] = weight_{active}$;
+		\EndFor
+		\EndIf
+		\vspace{-1pt}
+	\end{algorithmic}
+\end{algorithm}
+
+If the robot is too far away from the given goal, the arm joints are disabled and only the base moves. Between a certain distance threshold, both base and arms can move, with the weights dynamically changing in accordance to the distance. If the robot is close to the goal, only the arms and torso are allowed to freely move, the weight of the base is increased so that the controller prefers moving arms and torso to base.
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[][Isometric view]
@@ -792,7 +827,7 @@ The first goal set to the controller is a pre-grasping pose, located three centi
 
 When the projection manager system receives a request to grasp an object, it asks the controller for several trajectories. The trajectory evaluation service is in charge of assigning scores to each one on these trajectories and sending the best one back.
 
-First, each trajectory is sent to the \textit{collision detection} node, if a collision is found, the trajectory gets discarded,of not, the minimum distance between the robot and an object is obtained. The remaining trajectories are then evaluated.
+First, each trajectory is sent to the \textit{collision detection} node, if a collision is found, the trajectory gets discarded, if not, the minimum distance between the robot and an object is obtained. The remaining trajectories are then evaluated.
 
 For the evaluation, different metrics are considered
 \begin{itemize}
@@ -802,6 +837,13 @@ For the evaluation, different metrics are considered
 	\item Manipulability of the EEF after reaching the goal
 	\item Distance to collision: Minimum distance from the arm to any object in the scene
 \end{itemize}
+
+
+The manipulability is calculated as proposed by \cite{Yoshikawa}, who defines it as a quality measure for redundant manipulators, it describes the distance to singular configuration of the robot.
+$$
+manipulability = \sqrt{det(\textbf{JJ}^{T})}
+$$
+where $\textbf{J}$ is the Jacobian of the kinematic chain used to perform the trajectory. This approach was also used by \cite{manip_analysis}, they combine the manipulability with a penalization term that considers the distance to the joint limits to measure the robot's ability to maneuver in the workspace.
 
 After simulation several experiments, a maximum value for acceleration and velocity change was defined, as well as for manipulability. The maximum length of the trajectory was obtained based on the robot arm workspace. Using these values, a score for each trajectory can be calculated:
 \begin{equation}
@@ -829,8 +871,9 @@ The object the robot will grasp is removed from the collision objects, since the
 For every step in the trajectory, the new joint values are loaded in the robot model. The planning scene evaluates if the robot is in a valid state and if there is any collision, both self-collisions and collisions with the environment are considered. If no collision was found, the minimum distance to an object is stored. The evaluation stops if a collision is found and the trajectory is discarded.
 
 \section{PI Controller}
+\label{sec:pi_controller}
 
-The Boxy robot moves by receiving a sequence of velocity commands for the joints. This means if the robot receives the command "move the base at $0.5\frac{m}{sec}$" during 2 seconds, it will execute this movement for two seconds. Therefore it is not possible to send a whole trajectory at once and expect the robot to move, since the trajectory is a sequence of desired positions and velocities.
+The Boxy robot moves by receiving a sequence of velocity commands for the joints. This means: if the robot receives the command "move the base at $0.5\frac{m}{sec}$" during 2 seconds, it will execute this movement for two seconds. Therefore it is not possible to send a whole trajectory at once and expect the robot to move, since the trajectory is a sequence of desired positions and velocities.
 
 The proportional and integral controller (PI controller) reads the trajectory step by step and sends the specified position for each joint. It reads the time stamps of the trajectory to find out where the robot should be after a certain time interval. It uses a proportional gain and an integral gain to compensate for the robot's inertia. 
 

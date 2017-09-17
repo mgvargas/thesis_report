@@ -9,7 +9,7 @@
 %*************************************************************
 %  \renewcommand{\bibname}{References}
 %  \renewcommand{\refname}{References}
-%  \printbibliography[title = {References}]
+% \printbibliography[title = {References}]
 
 @ARTICLE{qpoases,
 	author = {H.J. Ferreau and C. Kirches and A. Potschka and H.G. Bock and M. Diehl},
@@ -25,9 +25,11 @@
 
 @book{Handbook,
 	author={Bruno Siliciano and Oussama Khatib},
-	year={2008},
 	title={Springer Handbook of Robotics},
-	publisher={Springer}
+	year = {2007},
+	isbn = {354023957X},
+	publisher = {Springer-Verlag New York, Inc.},
+	address = {Secaucus, NJ, USA},
 }
 
 @misc{AIUniBremen,
@@ -64,7 +66,7 @@
 	volume={16}
 	}
 
-@inproceedings{45466,
+@inproceedings{lidar,
 title = {Real-Time Loop Closure in 2D LIDAR SLAM},
 author  = {Wolfgang Hess and Damon Kohler and Holger Rapp and Daniel Andor},
 year  = 2016,
@@ -89,7 +91,7 @@ pages = {1271--1278}
 
 @article{Taskspace,
 	title={Task Space Regions: A framework for pose-constrained manipulation planning},
-	author={Dmitry Berenson and, Siddhartha Srinivasa and James Kuffner},
+	author={Dmitry Berenson, Siddhartha Srinivasa and James Kuffner},
 	year={2011},
 	journal={The International Journal of Robotics Research},
 	volume={32},
@@ -106,7 +108,9 @@ pages = {1271--1278}
 @book{planning,
 	title={Planning Algorithms},
 	author={Steven M. LaValle},
-	publisher={Cambridge},
+	publisher={Cambridge University Press},
+	address = {Cambridge, U.K.},
+	note = {Available at http://planning.cs.uiuc.edu/},
 	year={2006},
 }
 
@@ -133,7 +137,6 @@ pages = {1271--1278}
 	number = {8},
 	publisher = {John Wiley & Sons, Ltd.},
 	issn = {1099-1239},
-	url = {http://dx.doi.org/10.1002/rnc.1251},
 	doi = {10.1002/rnc.1251},
 	pages = {816-830},
 	keywords = {model predictive control, parametric quadratic programming, online active set strategy},
@@ -168,8 +171,19 @@ pages = {1271--1278}
 	year = {2012}
 }
 
+@article{giskard,
+	author = {Zhou Fang and Georg Bartels and Michael Beetz},
+	title = {Learning Models for Constraint-based Motion Parameterization from
+Interactive Physics-based Simulation},	
+	journal = {International Conference on Intelligent Robots and Systems (IROS)},
+	publisher = {IEEE},
+	volume = {4},
+	year = {2016}
+	doi = {10.1109/IROS.2016.7759590}
+}
+
 @article{reflexxes_lib,
-	author = {Torsten Kröger, Reflexxes GmbH},
+	author = {Torsten Kröger},
 	title = {Opening the Door to New Sensor-Based Robot	Applications.  The Reflexxes Motion Libraries},
 	journal = {Robotics and Automation ICRA},
 	publisher = {IEEE},
@@ -177,7 +191,7 @@ pages = {1271--1278}
 }
 
 @article{reflexxes_theory,
-	author = {Torsten Kröger, Friedrich M. Wahl},
+	author = {Torsten Kröger and Friedrich M. Wahl},
 	title = {Online Trajectory Generation: Basic Concepts for Instantaneous Reactions to Unforeseen Events},
 	journal = {Transactions on Robotics},
 	volume = {26},
@@ -198,7 +212,6 @@ pages = {1271--1278}
 	issn = {0097-8930},
 	pages = {245--254},
 	numpages = {10},
-	url = {http://doi.acm.org/10.1145/325165.325242},
 	doi = {10.1145/325165.325242},
 	acmid = {325242},
 	publisher = {ACM},
@@ -208,12 +221,36 @@ pages = {1271--1278}
 
 @book{siciliano,
 	title =     {Robotics - Modelling, Planning and Control},
-	author =    {Bruno Siciliano, Lorenzo Sciavicco, Luigi Villani, Giuseppe Oriolo},
+	author =    {Bruno Siciliano and Lorenzo Sciavicco and Luigi Villani and Giuseppe Oriolo},
 	publisher = {Springer},
 	isbn =      {9781846286414,1846286417},
 	year =      {2008},
 	series =    {Advanced Textbooks in Control and Signal Processing},
 	edition =   {2nd Printing.},
 	volume =    {},
-	url =       {http://gen.lib.rus.ec/book/index.php?md5=178D0DD375898D9DD757BAB2CC6DECCD}
+}
+
+@article{manip_analysis,
+	author = {Nikolaus Vahrenkamp and Tamim Asfour and Giorgio Metta and Giulio Sandini and Rüdiger Dillmann},
+	title = {Manipulability analysis},
+	journal = {IEEE-RAS International Conference on Humanoid Robots (Humanoids)},
+	number = {12},
+	month = dec,
+	year = {2012},
+	issn = {2164-0580},
+	doi = {10.1109/HUMANOIDS.2012.6651576},
+	publisher = {IEEE},
+	address = {Karlsruhe, Germany},
+}
+
+@article{Yoshikawa,
+	added-at = {2012-03-17},
+	author = {Yoshikawa, Tsuneo},
+	journal = {The International Journal of Robotics Research},
+	number = {2},
+	pages = {3-9},
+	timestamp = {2012-03-17T12:15:43.000+0100},
+	title = {Manipulability of Robotic Mechanisms},
+	volume = {4},
+	year = {1985}
 }

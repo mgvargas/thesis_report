@@ -36,7 +36,7 @@ The first experiments were made in simulation and visualized using RVIZ (section
 \subsection{Scenario 1: Simulation}
 \label{sub:scenario1}
 
-The scenario simulated three objects detected on top of a table: a cup, a tomato sauce package and a bottle of pancake mix . A model of the robot was loaded in this environment in front of the table (figure \ref{fig:env}). The table model and the general position of the robot with respect to it simulates the environment of the IAI's lab, the place where the experiments with the robot were done.
+The scenario simulated three objects detected on top of a table: a cup, a tomato sauce package (knorr tomate) and a bottle of pancake mix (mondamin). A model of the robot was loaded in this environment in front of the table (figure \ref{fig:env}). The table model and the general position of the robot with respect to it simulates the environment of the IAI's lab, the place where the experiments with the robot were done.
 
 \begin{figure}[H]
 	\centering
@@ -49,7 +49,7 @@ The scenario simulated three objects detected on top of a table: a cup, a tomato
 
 Nine different initial configurations for the robot were defined. For each configuration, the robot had to grasp the three objects shown in figure \ref{fig:env}. The system was told to calculate five trajectories each time he received the request to grasp an object, and select the one with the best score.
 
-For some of the initial configurations, he robot was positioned far away from the table, so that the objects were out of reach for it. This was done in order to test the base's movement. In other cases the robot was placed closer to the table, so that the arms and torso started moving from the beginning of the trajectory.
+For some of the initial configurations, the robot was positioned far away from the table, so that the objects were out of reach for it. This was done in order to test the base's movement. In other cases the robot was placed closer to the table, so that the arms and torso started moving from the beginning of the trajectory.
 
 
 \subsection{Scenario 2: Testing with the robot}
@@ -62,9 +62,9 @@ Figure \ref{fig:exp} shows the results obtained by one iteration of the motion c
 
 \begin{figure}[H]
 	\centering
-	\input{plots/weights} \\ \vspace{-15pt}
+	\input{plots/weights} \\ \vspace{-10pt}
 	\input{plots/error} \\ \vspace{-5pt}
-	\input{plots/base_pos} \vspace{-5pt}
+	\input{plots/base_pos} \vspace{-8pt}
 	\input{plots/base_vel} \vspace{-5pt}
 	\input{plots/joint_vel} \vspace{-20pt}
 	\caption[Trajectory Result]{Behavior during one simulated trajectory. Iteration $0$ to $\approx100$: base active. Iteration $\approx100$ to $\approx200$: Whole robot active. Iteration $\approx200$ on: Arm active, torso partially active.} \vspace{-15pt} \label{fig:exp}
@@ -74,17 +74,19 @@ Analyzing  the first two plots of figure \ref{fig:exp}, it can be seen how the w
 
 During the first hundred iterations, the robot is too far away from the table, so it will move only the base. Between a certain threshold, the base's weights starts increasing and the arm's and torso's weights decrease, the robot starts to use more the arm and torso and less the base. When Boxy approaches the table, the base's weight is high, so the movements are executed mainly with the arm.
 
+At the beginning of the trajectory, the error decreases fast, because the robot is just approaching to the table moving the base. When only the arm and torso are active, the error converges slowly, since the controller must now consider not only position, but also orientation.
+
 \subsection{Scenario 1: Simulation}
 \label{res:sim}
 
-Table \ref{table:sim} shows the scores obtained by each trajectory of the simulation experiments described in section \ref{sub:scenario1}.   Trajectories that did not reached the goal a given time were considered as failed and were not evaluated. The scores of the trajectories with a collision are also not displayed since these trajectories were discarded.
+Table \ref{table:sim} shows the scores obtained by each trajectory of the simulation experiments described in section \ref{sub:scenario1}.   Trajectories that did not reached the goal in a given time were considered as failed and were not evaluated. The scores of the trajectories with a collision are also not displayed since these trajectories were discarded. The evaluation was done as explained in section \ref{sec:traj_eval}.
 
 To make the table easier to read and compare values, the failed trajectories are written below the successful ones.
 
 \input{codes/scores}
+\vspace{-25pt}
 
+For each object, the trajectory with lower score was selected as the one to be sent to Boxy. The implications of this table are discussed in the next chapter.
 
-
-
-\subsection{Scenario 4: Testing with the robot}
+\subsection{Scenario 2: Testing with the robot}
 
