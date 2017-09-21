@@ -39,14 +39,30 @@ It is worth mentioning that, for testing purposes, the robot was asked to genera
 
 Calculating each trajectory takes, in average, 5.9 seconds. This is the time the robot needs to execute the trajectory. On each iteration of the calculation, the controller sends a velocity command to the \textit{naive\_kinematic\_simulator}, the simulator executes this command for a small amount of time (0.01 seconds) and sends the new state back to the controller. The controller repeats this process until the robot reaches the goal position. It needs to know how long the robot must execute each command to reach the goal. This means that generating the trajectory takes as long as executing it.
 
-However, the trajectory evaluation considerably slows down the process due to the collision detection. Checking for collisions in one trajectory lasts 16 seconds in average. This process is slow due to the amount of points in the 3D space that must be evaluated.
+However, the trajectory evaluation considerably slows down the process due to the collision detection. Checking for collisions in one trajectory lasts 9.2 seconds in average. This process is slow due to the amount of points in the 3D space that must be evaluated.
 
-As a contribution in future work, lowering the time required for collision checking could be achieved by the development and implementation of improved collision models. Simplifying the geometry of all models used for collision would considerably speed up the process. Another approach could be to preload all models that might be used and then remove the ones not required before evaluating. One possible optimization is to make an interaction between generating the trajectory and evaluating it, in order to discard the trajectory as soon as a collision is found.
+As a contribution in future work, lowering the time required for collision checking could be achieved by the development and implementation of improved collision models. Another approach could be to preload all models that might be used and then remove the ones not required before evaluating. One possible optimization is to make an interaction between generating the trajectory and evaluating it, in order to discard the trajectory as soon as a collision is found.
+
+The developed system was able to successfully grasp objects in table top scenarios, even when surrounded by other objects. as shown in figure \ref{fig:gres}. This implies that the collision detection of the system allows grasping in complex scenarios.
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}
+		{\includegraphics[width=0.45\linewidth]{results/grasp_crowded.jpg}}
+	\end{subfigure}
+	\begin{subfigure}
+		{\includegraphics[width=0.38\linewidth]{results/grasp_c3.jpg}}
+	\end{subfigure}
+	\vspace{-15pt}
+	\caption[Complex Grasping]{Grasping in a crowded scenario}
+	\vspace{-10pt}
+	\label{fig:gres}
+\end{figure}
 
 Some remarks I want to point out after finishing this thesis are:
 \begin{itemize}
 	\item No other system with a whole body optimization-based controller that included arms, torso and base for grasping scenarios was found.
 	\item Having a system with predefined grasping poses for given objects simplifies the planning of more complex grasping sequences.
+	\item Integrating the base in the robot's motion controller increases the working space of the robot and speeds un trajectories where the objects are located far away from the end effector
 	\item Implementation of collision avoidance makes the system safer to use in environments where several objects are found.
 	\item Fiducial markers provide a simple and reliable way of locating and identifying objects.
 \end{itemize}

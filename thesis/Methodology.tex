@@ -76,7 +76,7 @@ All the information about the objects is stored in a YAML file that works as dat
 
 \lstinputlisting[language=Python]{codes/db.yaml}
 
-This structure is filled for every object the robot will grasp and added at the end of the YAML file.a
+This structure is filled for every object the robot will grasp and added at the end of the YAML file. The \texttt{mesh} field contains the visualization model of the object, it can contain texture and colors. The \texttt{mesh\_collision} field contains a simplified model of the object (section \ref{subsec:moveit}), a simpler mesh that is used during collision detection.
 
 \subsection{Grasping Poses}
 
@@ -820,7 +820,7 @@ If the robot is too far away from the given goal, the arm joints are disabled an
 
 Figure \ref{fig:traj1} shows a simulated trajectory followed by the EEF while reaching out for a cup. The right area in figure \ref{fig:traj1} (b) shows the part of the trajectory where mainly the base was moved, the middle area is where arms, torso and base were active and the left area is where mainly the arm and torso were used.
 
-The first goal set to the controller is a pre-grasping pose, located three centimeters away on the Z-axis from the current grasping pose. Once the EEF is within a certain position and orientation threshold from the  pre-grasping pose, it moves towards the final grasping pose. The pre-grasping pose is defined to help avoiding collisions with the object, the EEF can approach the object only when the orientation is already correct and will do so in a way that it will not try to go through the object in order to reach the grasping pose.
+The first goal set to the controller is a pre-grasping pose, located eight centimeters away on the Z-axis from the current grasping pose. Once the EEF is within a certain position and orientation threshold from the  pre-grasping pose, it moves towards the final grasping pose. The pre-grasping pose is defined to help avoiding collisions with the object, the EEF can approach the object only when the orientation is already correct and will do so in a way that it will not try to go through the object in order to reach the grasping pose.
 
 \section{Trajectory Evaluation}
 \label{sec:traj_eval}

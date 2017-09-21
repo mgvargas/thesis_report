@@ -9,6 +9,8 @@ object_name:
 		position: [0.005, 0.0678, 0.0345]
 		orientation: [ 0.061,  0.740, -0.665,  0.068]
   mesh: package://iai_markers_tracking/meshes/object.dae  # 3D model
+  mesh_collision: package://iai_markers_tracking/meshes/collision.stl   
+  # Use collision model always in meters
   scale: 1.0 						   # if the model is in cm = 1, m = 0.01
   gripper_opening: 0.0055  # how much the gipper should open to
 								  		 	   # grasp the object

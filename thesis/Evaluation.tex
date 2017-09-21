@@ -57,9 +57,24 @@ The experiments were repeated with three different poses for each object, giving
 
 The second group of experiments was executed on the real robot. The robot was placed in front of a table where some objects from the database were placed. In this case, the trajectory evaluation included the execution time (the time the robot required to execute the given trajectory).
 
+For this tests with the Boxy robot, grasping was considered successful if the robot could grasp and lift the object for at least 3 seconds. Twelve experiments were done, with three objects in four different positions. The initial pose of the robot was set per hand before each experiment, so there are variations between each pose.
+
+ \begin{figure}[H]
+ 	\centering
+ 	{\includegraphics[width=0.5\linewidth]{obj_location.jpg}}
+ 	\vspace{-12pt}
+ 	\caption[Objects location]{Location array of the objects during the experiments}
+ 	\vspace{-15pt}
+ 	\label{fig:loc}
+ \end{figure}
+
+Figure \ref{fig:loc} shows the four locations where each object was placed during the grasping experiments.  During some experiments, objects were placed close to the object the robot grasped, to test if grasping in a packed environment could be achieved.
+
 \section{Experimental Results}
 
 Figure \ref{fig:exp} shows the results obtained by one iteration of the motion controller. In this case, the right arm of the robot has to grasp a cup located on a table out of reach for the robot.
+
+Analyzing  the first two plots of figure \ref{fig:exp}, it can be seen how the weights dynamically change with the distance. These are the weights used in equation \ref{eq:h} to update the $\textbf{H}$ matrix, therefore, to update the cost function (equation \ref{eq:cost}) used by the controller. 
 
 \begin{figure}[H]
 	\centering
@@ -70,8 +85,6 @@ Figure \ref{fig:exp} shows the results obtained by one iteration of the motion c
 	\input{plots/joint_vel} \vspace{-20pt}
 	\caption[Trajectory Result]{Behavior during one simulated trajectory. Iteration $0$ to $\approx100$: base active. Iteration $\approx100$ to $\approx200$: Whole robot active. Iteration $\approx200$ on: Arm active, torso partially active.} \vspace{-15pt} \label{fig:exp}
 \end{figure}
-
-Analyzing  the first two plots of figure \ref{fig:exp}, it can be seen how the weights dynamically change with the distance. These are the weights used in equation \ref{eq:h} to update the $\textbf{H}$ matrix, therefore, to update the cost function (equation \ref{eq:cost}) used by the controller. 
 
 During the first hundred iterations, the robot is too far away from the table, so it will move only the base. Between a certain threshold, the base's weights starts increasing and the arm's and torso's weights decrease, the robot starts to use more the arm and torso and less the base. When Boxy approaches the table, the base's weight is high, so the movements are executed mainly with the arm.
 
@@ -110,4 +123,89 @@ Table \ref{table:summary} shows a summary of the experiment results, classifying
 
 \subsection{Scenario 2: Testing with the robot}
 
-For the tests done with the Boxy robot, grasping was considered successful if the robot could grasp and lift the object for at least 3 seconds. Twelve experiments were done, with three objects in four different positions. The initial pose of the robot was set per hand before each experiment, so there are variations between each pose. 
+After running the first experiments with the robot, I realized that some parameters had to be changed in order to successfully grasp objects:
+\begin{itemize}
+	\item The pre-grasping pose has to be further away from the actual grasping pose to avoid collision between the gripper and the object. The distance changed from three to eight centimeters.
+	\item The velocity limit of the base specified in the URDF is  $1\frac{m}{s}$, this is too high for the real robot. It was reduced to $0.3\frac{m}{s}$, because higher velocities caused the robot's structure to oscillate.
+	\item The error margin of the pre-gasping pose also had to be reduced to avoid colliding with the object while approaching to the grasping pose.
+\end{itemize}
+
+One problem I noticed with the perception system is that the orientation of the fiducial markers used to detect the objects is not always correct, this can lead to a fail grasping. Usually rotating the objects corrected the problem.
+
+Finally, I successfully ran experiments with Boxy. However, the process was slow due to the time required for collision detection, approximately 16 seconds per trajectory. Trying to reduce this time, I simplified the collision models of the objects. This reduced the average collision detection time to 9.2 seconds.
+
+Table \ref{table:res_robot}  shows the results of the experiments I did on the robot after doing the changes mentioned above. It shows the time required by the robot to execute the trajectory, the position error with respect to the planned trajectory and the outcome of the grasping. The position error was calculated with the joint states measured by the robot, it was not taking into account possible errors in the base odometry.
+ \vspace{1cm}
+
+{\small
+\begin{center}
+	\begin{longtable}[c]{ | c | c | c | c || c || }
+		\hline
+		\hline
+		\multicolumn{5}{|c|}{Scenario 1: Experiments with the Boxy Robot} \\
+		\hline
+		\hline
+		\endhead
+		Object & Pose Grasped & Duration [sec] & Error wrt planned [cm] & Result (Object state) \\
+ 		\hline
+		\multirow{5}{1.5cm}{mondamin}
+		& GP 5 & 6 & 1.1 & Collision w/ gripper \\
+		& GP 1 & 7 & 0.45 & Grasped \\
+		& GP 5 & 11 & 0.7 & Grasped \\
+		& GP 5 & 9 & 0.8 & Grasped \\
+		\hline 
+		\multirow{5}{1.5cm}{knorr tomate}
+		& GP 3 & 7 & 1.4 & Grasped \\
+		& GP 3 & 8 & 0.6 & Dropped \\
+		& GP 3 & 10 & 0.2 & Grasped \\
+		& GP 3 & 7 & 1.2 & Grasped \\		
+		\hline
+		\multirow{5}{1.5cm}{cup} & GP 1 & 13 & 1.03 &  Collision w/ gripper  \\
+		& GP 3 & 12 & 0.8 & Grasped \\
+		& GP 3 & 22 & 1.1 & Did not reached \\
+		& GP 3 & 24 & 0.5 & Did not reached \\	
+		\hline
+\caption{Experiment Results: Grasping actions performed with the Boxy robot}
+\label{table:res_robot} 
+\end{longtable}
+\end{center}}
+\vspace{-2cm}
+
+There were problems with the detection of the cup, due the location of the markers. One of the markers was often detected closer than it really was, so the gripped did not reached the object.
+
+In 10 out of the 12 experiments, the planner decided to grasp the pose located on top of the object, since, for most common configurations or the arm, is the easiest to reach.
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}
+		{\includegraphics[width=0.45\linewidth, angle=-90]{results/grasp_mon.jpg}}
+	\end{subfigure}
+	\begin{subfigure}
+		{\includegraphics[width=0.45\linewidth, angle=-90]{results/grasp_knorr.jpg}}
+	\end{subfigure}
+	\begin{subfigure}
+	{\includegraphics[width=0.45\linewidth, angle=-90]{results/grasp_mon2.jpg}}
+	\end{subfigure}
+	\vspace{-15pt}
+	\caption[Grasping]{Grasping examples}
+	\vspace{-10pt}
+	\label{fig:grasp}
+\end{figure}
+
+Three examples of successful grasping are shown in figure \ref{fig:grasp}.
+
+Figure \ref{fig:crowded} shows two scenarios where a successful grasping was made in a situation where the object to grasped was surrounded by other objects.
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}
+		{\includegraphics[width=0.4\linewidth]{results/grasp_crowded2.jpg}}
+	\end{subfigure}
+	\begin{subfigure}
+		{\includegraphics[width=0.409\linewidth]{results/grasp_c2.jpg}}
+	\end{subfigure}
+	\vspace{-15pt}
+	\caption[Complex Grasping]{Grasping in a crowded scenario}
+	\vspace{-10pt}
+	\label{fig:crowded}
+\end{figure}
+
+During the tests, only one of the robots could be used due to a internal problem of the right arm, so no comparison between the results of each arm could be done. However, after tuning the system, most of the grasping actions were successful. No trajectory executed generated a collision, even when objects were near the goal position.

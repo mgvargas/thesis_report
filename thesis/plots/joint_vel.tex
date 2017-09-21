@@ -27,13 +27,6 @@ legend style={at={(0.03,0.97)}, anchor=north west, draw=white!80.0!black, fill=w
 legend entries={{j0},{j1},{j2},{j3},{j4},{j5},{j6}},
 legend cell align={left}
 ]
-\addlegendimage{no markers, color0}
-\addlegendimage{no markers, color1}
-\addlegendimage{no markers, color2}
-\addlegendimage{no markers, teal}
-\addlegendimage{no markers, black}
-\addlegendimage{no markers, color3}
-\addlegendimage{no markers, color4}
 \draw[dashed] (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymin}) -- 
 (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
 \draw[dashed] (axis cs: 199,\pgfkeysvalueof{/pgfplots/ymin}) -- 
@@ -159,6 +152,7 @@ table {%
 232 -0.00772684766461862
 234 -0.00693195468948868
 };
+\addlegendentry{j0};
 \addplot [very thick, color1, mark=triangle*, mark size=1, mark options={solid,rotate=180}, only marks]
 table {%
 0 0
@@ -280,6 +274,7 @@ table {%
 232 -0.109328845002698
 234 -0.098867961759986
 };
+\addlegendentry{j1};
 \addplot [very thick, color2]
 table {%
 0 0
@@ -401,7 +396,8 @@ table {%
 232 -0.0924214162551397
 234 -0.0826200742756783
 };
-\addplot [very thick, teal, mark=asterisk*, mark size=1, mark options={solid}, only marks]
+\addlegendentry{j2};
+\addplot [very thick, teal, mark=square*, mark size=0.5, mark options={solid}, only marks]
 table {%
 0 0
 2 -5.42101086242752e-20
@@ -522,6 +518,7 @@ table {%
 232 -0.00122187214991154
 234 -0.00114841001269683
 };
+\addlegendentry{j3};
 \addplot [very thick, black, dash pattern=on 1pt off 3pt on 3pt off 3pt]
 table {%
 0 0
@@ -762,6 +759,7 @@ table {%
 235 0.00913204044580501
 236 0.00913086719099398
 };
+\addlegendentry{j4};
 \addplot [very thick, color3, dashed]
 table {%
 0 0
@@ -1002,6 +1000,7 @@ table {%
 235 -0.125993491848519
 236 -0.125999094141193
 };
+\addlegendentry{j5};
 \addplot [very thick, color4]
 table {%
 0 0
@@ -1242,6 +1241,7 @@ table {%
 235 -0.108685134697624
 236 -0.108670780400255
 };
+\addlegendentry{j6};
 \end{axis}
 
 \end{tikzpicture}

@@ -24,9 +24,6 @@ legend entries={{arm},{base},{torso}},
 legend cell align={left},
 xticklabels=None
 ]
-\addlegendimage{no markers, green!50.0!black}
-\addlegendimage{no markers, teal}
-\addlegendimage{no markers, color0}
 \draw[dashed] (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymin}) -- 
 (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
 \draw[dashed] (axis cs: 199,\pgfkeysvalueof{/pgfplots/ymin}) -- 
@@ -270,6 +267,8 @@ table {%
 235 0.1
 236 0.1
 };
+\addlegendentry{arm};
+
 \addplot [thick, teal, dashed]
 table {%
 1 0.1
@@ -509,6 +508,8 @@ table {%
 235 10
 236 10
 };
+\addlegendentry{base};
+
 \addplot [thick, color0]
 table {%
 1 9
@@ -748,6 +749,7 @@ table {%
 235 8.22892033588139
 236 8.22892033588139
 };
+\addlegendentry{torso};
 \end{axis}
 
 \end{tikzpicture}

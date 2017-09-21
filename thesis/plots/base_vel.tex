@@ -22,8 +22,6 @@ legend cell align={left},
 legend style={draw=white!80.0!black, fill=white!89.803921568627459!black},
 xticklabels=None
 ]
-\addlegendimage{no markers, red}
-\addlegendimage{no markers, blue}
 \draw[dashed] (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymin}) -- 
 (axis cs: 93,\pgfkeysvalueof{/pgfplots/ymax})node[anchor=west,rotate=90]{};
 \draw[dashed] (axis cs: 199,\pgfkeysvalueof{/pgfplots/ymin}) -- 
@@ -268,6 +266,8 @@ table {%
 235 0.000529559055498362
 236 0.000529582062733399
 };
+\addlegendentry{x};
+
 \addplot [thick, blue]
 table {%
 0 0
@@ -508,6 +508,7 @@ table {%
 235 -0.000267725566757142
 236 -0.000267738691484418
 };
+\addlegendentry{y};
 \end{axis}
 
 \end{tikzpicture}
