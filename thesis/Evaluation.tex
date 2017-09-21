@@ -26,7 +26,7 @@ The metrics considered for each trajectory are:
 
 All trajectories that generate a collision or that do not reach a certain threshold distance around the grasping pose are discarded. The remaining trajectories are scored based on these metrics and the best one is sent to the robot.
 
-In all experiments, grasping is considered successful if the robot's EEF reached one of the defined grasping poses without collisions.
+In the simulated experiments, grasping is considered successful if the robot's EEF reached one of the defined grasping poses without collisions. For the experiments with the real robot, grasping was considered successful if the robot grasped and lifted the object.
 
 \section{Experimental Setup}
 
@@ -36,7 +36,7 @@ The first experiments were made in simulation and visualized using RVIZ (section
 \subsection{Scenario 1: Simulation}
 \label{sub:scenario1}
 
-The scenario simulated three objects detected on top of a table: a cup, a tomato sauce package (knorr tomate) and a bottle of pancake mix (mondamin). A model of the robot was loaded in this environment in front of the table (figure \ref{fig:env}). The table model and the general position of the robot with respect to it simulates the environment of the IAI's lab, the place where the experiments with the robot were done.
+The scenario simulates three objects detected on top of a table: a cup, a tomato sauce package (knorr tomate) and a bottle of pancake mix (mondamin). A model of the robot was loaded in this environment in front of the table (figure \ref{fig:env}). The table model and the general position of the robot with respect to it simulate the environment of the IAI's lab, the place where the experiments with the robot were done.
 
 \begin{figure}[H]
 	\centering
@@ -47,10 +47,11 @@ The scenario simulated three objects detected on top of a table: a cup, a tomato
 	\label{fig:env}
 \end{figure}
 
-Nine different initial configurations for the robot were defined. For each configuration, the robot had to grasp the three objects shown in figure \ref{fig:env}. The system was told to calculate five trajectories each time he received the request to grasp an object, and select the one with the best score.
+Ten different initial configurations for the robot were defined. For each configuration, the robot had to grasp the three objects shown in figure \ref{fig:env}. The system was told to calculate five trajectories each time it received the request to grasp an object, and select the one with the best score.
 
-For some of the initial configurations, the robot was positioned far away from the table, so that the objects were out of reach for it. This was done in order to test the base's movement. In other cases the robot was placed closer to the table, so that the arms and torso started moving from the beginning of the trajectory.
+For some of the initial configurations, the robot was positioned far away from the table, so that the objects were out of reach. This was done in order to test the base's movement. In other cases the robot was placed closer to the table, so that the arms and torso started moving from the beginning of the trajectory.
 
+The experiments were repeated with three different poses for each object, giving a total of 90 grasping simulations.
 
 \subsection{Scenario 2: Testing with the robot}
 
@@ -58,7 +59,7 @@ The second group of experiments was executed on the real robot. The robot was pl
 
 \section{Experimental Results}
 
-Figure \ref{fig:exp} shows the results obtained by one iteration of the motion controller. In this case, the right arm of the robot has to grasp a cup located on a table out of reach fo the robot.
+Figure \ref{fig:exp} shows the results obtained by one iteration of the motion controller. In this case, the right arm of the robot has to grasp a cup located on a table out of reach for the robot.
 
 \begin{figure}[H]
 	\centering
@@ -83,10 +84,30 @@ Table \ref{table:sim} shows the scores obtained by each trajectory of the simula
 
 To make the table easier to read and compare values, the failed trajectories are written below the successful ones.
 
-\input{codes/scores}
-\vspace{-25pt}
+\input{codes/scores} \vspace{-60pt}
 
 For each object, the trajectory with lower score was selected as the one to be sent to Boxy. The implications of this table are discussed in the next chapter.
 
+{\small
+\begin{center}
+\begin{longtable}[c]{ | c | c | c | c | c | c || c || }
+\hline
+\hline
+\multicolumn{7}{|c|}{Scenario 1: Summary} \\
+\hline
+\hline
+\multirow{2}{1.7cm}{Grasping events} & \multirow{2}{1.7cm}{Num. Trajectories} & \multicolumn{3}{c|}{Trajectories} & \multirow{2}{1.5cm}{Failed Grasping} & \multirow{2}{1.5cm}{Successful Grasping} \\
+& & Successful & Failed & Collision & &\\
+\hline
+90 & 450 & 247 & 170 & 33 & 10 & 80 \\ 
+\hline
+\caption{Simulation Experiment: Summary of trajectory evaluation for ten initial configurations where three objects were grasped with three positions per object}
+\label{table:summary}
+\end{longtable}
+\end{center}} \vspace{-50pt}
+
+Table \ref{table:summary} shows a summary of the experiment results, classifying the trajectories in successful, failed or collision detected. From the 90 grasping actions simulated, $88.9\%$ were successful.
+
 \subsection{Scenario 2: Testing with the robot}
 
+For the tests done with the Boxy robot, grasping was considered successful if the robot could grasp and lift the object for at least 3 seconds. Twelve experiments were done, with three objects in four different positions. The initial pose of the robot was set per hand before each experiment, so there are variations between each pose. 

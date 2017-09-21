@@ -20,7 +20,7 @@
 
 \section{Github Repositories}\label{A2}
 
-This project was developed in a computer running Ubuntu 16.04, no special hardware is required to execute the generated code.
+This project was developed on a computer running Ubuntu 16.04, no special hardware is required to execute the generated code.
 
 However, the user needs to have some software and packages installed: 
 \begin{itemize}
@@ -35,7 +35,7 @@ Here you can find all the Github repositories with the code required to run this
 	
 	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/iai_markers_tracking}}\vspace{-0.5cm}
 	
-	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/iai_trajectory_generation_boxy}}\vspace{-0.1cm}
+	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/iai_trajectory_generation_boxy}}\vspace{-0.5cm}
 
 	\hspace{1cm}\texttt{\url{https://github.com/mgvargas/qpOASES}}\vspace{-0.5cm}	
 	\item Boxy's model and description:\vspace{-0.5cm}
@@ -77,6 +77,6 @@ The object must be already in the database for the robot to detect it and have t
 
 New objects can be added any time to the \texttt{database.yaml} file of the \texttt{iai\_markers\_tracking} package following the same syntax of the other objects, explained in section \ref{sec:db}.
 
-The file \texttt{send\_commands\_to\_boxy.py} contains the PI controller in charged of sending the obtained trajectory to the robot.
+The file \texttt{send\_commands\_to\_boxy.py} contains the PI controller in charged of sending the obtained trajectory to the robot, it also closes the gripper and lifts the object once the goal is reached.
 
 

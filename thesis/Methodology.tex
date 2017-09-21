@@ -20,7 +20,7 @@ The system developed in this work, which has the objective of allowing the robot
 \begin{itemize}
 	\item \textbf{Object Database:} A database with a 3D model of the objects the robot will be able to grasp, as well as predefined grasping poses for each object.
 	\item \textbf{Perception system:} In order to simplify the perception task, all objects are identified using markers. The position and orientation of the markers with respect to the reference frame of the objects is known.
-	\item \textbf{Motion controller:} A constraint-based, optimization-based controller was developed. This controller allows the parametrization of the trajectory and automatically selects the better grasping pose according to the initial conditions.
+	\item \textbf{Motion controller:} A constraint-based, optimization-based controller was developed. This controller allows the parametrization of the trajectory and automatically selects the best grasping pose according to the initial conditions.
 	\item \textbf{Collision detection:} Since the motion controller is not able to detect collision objects in the environment, it is important to evaluate if the obtained trajectory would generate a collision
 \end{itemize} 
 
@@ -41,7 +41,7 @@ The component in charge of generating the trajectory is \textit{sim\_controller}
 
 The \textit{projection\_manager} node coordinates the whole system. It receives the request to grasp an object, asks the \textit{Object dB} if the object was detected and requests the generation of a trajectory to the motion controller. 
 
-The \textit{projection\_manager} requests several trajectories to the \textit{sim\_controller} to have several options to choose from. It calculates the distance from both EEF to all the object's grasping poses. Base on the distance and the initial manipulability of each arm, selects the most suitable grasping pose (GP) and requests a trajectory to it, then discards this GP and selects the second best one and gets another trajectory. This process is repeated a couple of times to ensure that trajectories reaching different goals with both arms are obtained.
+The \textit{projection\_manager} requests several trajectories to the \textit{sim\_controller} to have several options to choose from. It calculates the distance from both EEF to all the object's grasping poses. Based on the distance and the initial manipulability of each arm, selects the most suitable grasping pose (GP) and requests a trajectory to it, then discards this GP and selects the second best one and gets another trajectory. This process is repeated a couple of times to ensure that trajectories reaching different goals with both arms are obtained.
 
 Then, \textit{projection\_manager} sends the trajectories to the \textit{trajectory\_evaluation} service (section \ref{sec:traj_eval}), which evaluates the trajectories, selects one and sends it back as result. 
 
@@ -63,12 +63,12 @@ The system requires previous knowledge about the objects the robot will interact
 		{\includegraphics[width=0.2\linewidth]{cup3.png}}
 	\end{subfigure}
 	\vspace{-12pt}
-	\caption[3D models]{DAE models of a bowl and a cup. In the cup, one of the markers used for perception can be seen.}
+	\caption[3D models]{DAE models of a bowl and a cup. On the cup, one of the markers used for perception can be seen.}
 	\vspace{-10pt}
 	\label{fig:model}
 \end{figure}
 
-In order to simplify the perception task, markers were added to all objects. The markers used are \textit{Chilitags}\footnote{http://chili.epfl.ch/software}, which can be integrated with ROS\footnote{https://github.com/chili-epfl/ros\_markers}. Once the tags or markers are detected by the camera, it's position is published to a ROS topic. The \textit{Object dB} node matches the corresponding objects to the found markers and displays the models in RVIZ.
+In order to simplify the perception task, markers were added to all objects. The markers used are \textit{Chilitags}\footnote{http://chili.epfl.ch/software}, which can be integrated with ROS\footnote{https://github.com/chili-epfl/ros\_markers}. Once the tags or markers are detected by the camera, its position is published to a ROS topic. The \textit{Object dB} node matches the corresponding objects to the found markers and displays the models in RVIZ.
 
 \subsection{Object Database}
 \label{sec:db}
@@ -90,7 +90,7 @@ For humans, it is intuitive how an object can be grasped, but for a robot it is 
 	\label{fig:knorr}
 \end{figure}
 
-Figure \ref{fig:knorr} shows an object with two predefined GP. The perception system detects the position of the \textit{Chilitags} markers, searches the database for the corresponding object and GP and displays them in RVIZ, it also publishes a TF for both.
+Figure \ref{fig:knorr} shows an object with two predefined GPs. The perception system detects the position of the \textit{Chilitags} markers, searches the database for the corresponding object and GP and displays them in RVIZ, it also publishes a TF for both.
 
 
 \section{Motion Controller}
@@ -100,13 +100,13 @@ The motion control system used  to generate and control the movement of the robo
 
  As stated by \citet{qpoases},  qpOASES is an open-source optimization software that can solve quadratic programming (QP) problems of the form:
 \begin{equation}
-\underset{\vec{x}}{\min}\ c(x)\ =\  \underset{\vec{x}}{\min}\ \left( \frac{1}{2} \ \vec{x}\ ' \ \textbf{H} \ \vec{x} + \vec{x}\ ' \ \vec{g}(\omega_{0}) \right)
+\underset{\vec{x}}{\min}\ c(\vec{x})\ =\  \underset{\vec{x}}{\min}\ \left( \frac{1}{2} \ \vec{x}\ ' \ \textbf{H} \ \vec{x} + \vec{x}\ ' \ \vec{g}(\omega_{0}) \right)
 \label{eq:cost_in}
 \end{equation}
 Where $H \in \Re^{nV\times nV}$ is a symmetric and positive (semi-) definite Hessian matrix and $\vec{g} \in \Re^{nV}$ is a gradient vector that depends on the parameter $\omega_{0}$, with $nV$ being the length of the vector $\vec{x}$. The software tries to minimize the cost function $c(x)$. This minimization is subject to the following constraints:
 $$\vec{lb}(\omega_{0})\ \leq\ \vec{x}\ \leq\ \vec{ub}(\omega_{0})$$
 $$\vec{lbA}(\omega_{0})\ \leq\ \textbf{A}\vec{x}\ \leq\ \vec{ubA}(\omega_{0})$$
-where $\vec{lb}$, $\vec{ub} \in \Re^{nV}$ are the lower and upper constraint bound vectors of $\vec{x}$, the matrix $\textbf{A} \in \Re^{nC\times nV}$ is the constrain matrix with the lower and upper constraint boundary vectors $\vec{lbA}$, $\vec{ubA} \in \Re^{nV}$. Equality constraints can be achieved by setting equal upper and lower boundaries.
+where $\vec{lb}$, $\vec{ub} \in \Re^{nV}$ are the lower and upper constraint bound vectors of $\vec{x}$, the matrix $\textbf{A} \in \Re^{nC\times nV}$ is the constrain matrix with the lower and upper constraint boundary vectors $\vec{lbA}$ and $\vec{ubA} \in \Re^{nV}$. Equality constraints can be achieved by setting equal upper and lower boundaries.
  
 Several simple controllers were built and tested in order to understand the characteristics of the trajectories obtained using qpOASES. These controllers describe a two degree of freedom (DOF) linear manipulator. A state vector, $\vec{s}\ \in\ \Re^{nV}$, that describes the system is used as the variable the cost function minimizes:
 \begin{equation}
@@ -168,7 +168,7 @@ The joint limits also have to be taken into consideration:
 \begin{equation}
 (-q_{1,max} - q_{1})\ \ \leq\ \ \dot{\ q_{1}}\ \leq\ \ (q_{1,max} - q_{1})
 \end{equation}
-These constraints will reduce the joint velocities when they are approaching the limits until they reach zero at joint limit. The obtained velocity is the velocity the joints would require to reach the goal potion in one time instant. However, due to physical limitations, joints can not immediately reach maximum velocity in one time step, so acceleration limits have to be established:
+These constraints will reduce the joint velocities when they are approaching the limits until they reach zero at joint limit. The obtained velocity is the velocity the joints would require to reach the goal position in one time instant. However, due to physical limitations, joints can not immediately reach maximum velocity in one time step, so acceleration limits have to be established:
 \begin{equation}
 -a_{0,max}\ \ \leq\ \ \dot{\ q_{0}}\ \leq\ \ a_{0,max}
 \label{eq:accel0}
@@ -337,7 +337,7 @@ where $\epsilon_j$ is the slack factor for the joint goal and $joint\_error$ is 
 	\vspace{-15pt}
 	\label{fig:joint_eef}
 \end{figure}
-The initial position of the EEF is $0.47$, and of the joints $q_{0}= 0.02$ and $q_{0}= -0.15$, respectively. Only a goal for the EEF and for the first joint, $EEF_{f}= 0.6$ and $q_{0f} = -0.25$. are specified.
+The initial position of the EEF is $0.47$, and of the joints $q_{0}= 0.02$ and $q_{0}= -0.15$, respectively. Only a goal for the EEF and for the first joint, $EEF_{f}= 0.6$ and $q_{0f} = -0.25$ are specified.
 
 It can be seen in figure \ref{fig:joint_0} that one of the joints changes direction after around 75 iterations. This happens because the goal of the EEF and of the joint are in different directions, the system tries to minimize first the EEF error and afterwards the one of the joint.
 \begin{figure}[H]
@@ -592,7 +592,7 @@ where $p$ is the proportional gain and $q_{eef}$ the current position of the EEF
 
 The controller will then select the closest goal, which gets a higher weight. 
 
-In this example, the initial position of the EEF is set between both goals. The first goal is set at $0.45$ and the second one at $0.78$. As shown in figure \ref{fig:dynamic}, the EEF reaches the closes goal. The only parameter changed between figure \ref{fig:dynamic} (a) and (b) is the EEF's initial position. 
+In this example, the initial position of the EEF is set between both goals. The first goal is set at $0.45$ and the second one at $0.78$. As shown in figure \ref{fig:dynamic}, the EEF reaches the closest goal. The only parameter changed between figure \ref{fig:dynamic} (a) and (b) is the EEF's initial position. 
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[EEF closer to goal 2 (thick dotted line)]
@@ -818,7 +818,7 @@ If the robot is too far away from the given goal, the arm joints are disabled an
 	\label{fig:traj1}
 \end{figure}
 
-Figure \ref{fig:traj1} shows a simulated trajectory followed by the EEF while reaching out for a cup. The left area in figure \ref{fig:traj1} (b) shows the part of the trajectory where only the base was moved, the middle area is where arms, torso and base were active and the right area is where only the arm and torso were used.
+Figure \ref{fig:traj1} shows a simulated trajectory followed by the EEF while reaching out for a cup. The right area in figure \ref{fig:traj1} (b) shows the part of the trajectory where mainly the base was moved, the middle area is where arms, torso and base were active and the left area is where mainly the arm and torso were used.
 
 The first goal set to the controller is a pre-grasping pose, located three centimeters away on the Z-axis from the current grasping pose. Once the EEF is within a certain position and orientation threshold from the  pre-grasping pose, it moves towards the final grasping pose. The pre-grasping pose is defined to help avoiding collisions with the object, the EEF can approach the object only when the orientation is already correct and will do so in a way that it will not try to go through the object in order to reach the grasping pose.
 
@@ -888,6 +888,23 @@ The \textit{naive\_kinematic\_simulator} (section \ref{sub:naive}) used to gener
 	\label{fig:pi}
 \end{figure}
 
-Figure \ref{fig:pi} shows the diagram of the PI controller used. It was tuned to work with the Boxy robot first by tunning it with the \textit{naive\_kinematic\_simulator} and afterwards with the real robot.
+Figure \ref{fig:pi} shows the diagram of the used PI controller. It was tuned to work with the Boxy robot first by tunning it with the \textit{naive\_kinematic\_simulator} and afterwards with the real robot.
 
-\todo{add plots}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.99\linewidth]{pi_behavior1.png}
+	\vspace{-10pt}
+	\caption[Comparison: Generated and Executed trajectory]{Comparison between generated and executed trajectories. X axis - seconds, Y axis - joint values}
+	\vspace{-15pt}
+	\label{fig:behavior}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{pi_behavior2.png}
+	\vspace{-10pt}
+	\caption[Comparison: Generated and Executed trajectory]{Comparison between generated and executed trajectories. X axis - seconds, Y axis - joint values}
+	\vspace{-15pt}
+	\label{fig:behavior2}
+\end{figure}
+
+Figures \ref{fig:behavior} and \ref{fig:behavior2} show a comparison between the trajectory generated by the motion controller and the one executed by the robot. The first three plots if figure \ref{fig:behavior} show the behavior of the base and torso. The remaining plots show the seven joints of the arm used to grasp the object. As it can be seen, the robot follows accurately the planned trajectory.

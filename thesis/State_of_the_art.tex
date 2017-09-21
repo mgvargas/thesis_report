@@ -139,7 +139,7 @@ This chapter presents the current state of the art of some relevant topics for m
 According to \citet{Handbook}, \textit{robot kinematics} refers to the motion of the elements in a robot without considering the forces and torques that generated this movement. 
 To describe the movement of a robot, we need a kinematic model of its structure. The position and orientation of a body  in space is known as \textit{pose}.
 
-A robot can be modeled as a kinematic chain, which consists of a system of rigid bodies connected by joints, a \textit{kinematic joint} is a connection between 2 bodies that constrains their relative motion. In robotics, these bodies are usually referred to as \textit{links}.  The kinematic description of a robot normally uses some simplifications: the links that form the robot are assumed to be rigid, and each link is ideally connected with the next one, with no gap in between.
+A robot can be modeled as a kinematic chain, which consists of a system of rigid bodies connected by joints, a \textit{kinematic joint} is a connection between two bodies that constrains their relative motion. In robotics, these bodies are usually referred to as \textit{links}.  The kinematic description of a robot normally uses some simplifications: the links that form the robot are assumed to be rigid, and each link is ideally connected with the next one, with no gap in between.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.5\linewidth, angle=0]{6dof-robot.png}
@@ -220,7 +220,7 @@ One of the fundamental problems in robotics is to plan motions for complex bodie
 	\item A goal configuration $\bm{q_{G}} \in  \bm{C_{free}}$
 \end{enumerate}
 
-Where $\bm{C_{obs}}$ is the \textit{C-space obstacle region} and $\bm{C_{free}}$ is the set of configurations that avoid collision, called \textit{free space}. We must compute a continuous free path for the robot between $\bm{q_{1}}$ and $\bm{q_{G}}$.
+Where $\bm{C_{obs}}$ is the \textit{C-space obstacle region} and $\bm{C_{free}}$ is the set of configurations that avoid collisions, called \textit{free space}. We must compute a continuous free path for the robot between $\bm{q_{1}}$ and $\bm{q_{G}}$.
 
 The main complication is calculating $\bm{C_{obs}}$ and $\bm{C_{free}}$, that are needed to determine the region where the robot can move without colliding. There are two main approaches to solve the planning problem: sampling-based and combinatorial motion planning.
 
@@ -300,40 +300,40 @@ The bidirectional search gives much better performance compared to the single-tr
 
 \subsection{Optimization-based motion planning}
 \label{sub:optimization}
-A different approach to solve the trajectory generation software, is using an optimization algorithm that tries to minimize an error, in this case, the distance between the robot's end effector (EEF) an the goal.
+A different approach to solve the trajectory generation problem, is using an optimization algorithm that tries to minimize an error, in this case, the distance between the robot's end effector (EEF) an the goal.
  
 The robot motion controller developed in this work uses a model predictive control (MPC) algorithm. As explained by \citet{mpc} \textit{"all MPC systems rely on the idea of generating values for process inputs as solutions of an on-line (real-time) optimization problem"}. 
 
-MCP, also known as receding horizon control, is based on iterative optimization of a plant model. The approach used in this work, is solving the MPC with a sequence of convex quadratic programs (QP), where all motion constraints, goal and robot position are given as input to the problem and joint velocities are obtained as result (section \ref{sec:motion_controller}).
+MCP, also known as receding horizon control, is based on iterative optimization of a plant model. The approach used in this work, is solving the MPC with a sequence of convex quadratic programs (QP), where all motion constraints, goal and robot position are given as input to the optimization problem and joint velocities are obtained as result (section \ref{sec:motion_controller}).
 
 Quadratic programming is the process of solving a linearly constrained quadratic optimization problem of the form:
 \begin{equation}
-f(x):= \frac{1}{2}x^{T}\textbf{P}x - x^{T}b 
+f(x):= \frac{1}{2}\vec{x}^{T}\textbf{P}\vec{x} - \vec{x}^{T}b 
 \label{eq:qp}
 \end{equation}
-The QP minimizes equation \ref{eq:qp} over $x \in \Re ^{n}$ subject to the constraints:
-$$\textbf{C}x = c $$
-$$\textbf{D}x \leq d$$
-Where the matrix $\textbf{P} \in \Re ^{n \times n}$ is symmetric positive definite. Matrices $\textbf{C}$ and $\textbf{D}$ are of size $\textbf{C} \in \Re ^{m \times n}$ and $\textbf{D} \in \Re ^{m \times n}$ and vector $b \in \Re ^{n}$. Vector  $c \in \Re ^{m}$ sets the equality constraints and $d \in \Re ^{p}$ the inequality constraints of the system \citep{qp_theory}. There are two approaches for solving this optimization problem, by active set strategies or by interior point methods.
+The QP minimizes equation \ref{eq:qp} over $\vec{x} \in \Re ^{n}$ subject to the constraints:
+$$\textbf{C}\vec{x} = \vec{c} $$
+$$\textbf{D}\vec{x} \leq \vec{d}$$
+Where the matrix $\textbf{P} \in \Re ^{n \times n}$ is symmetric positive definite. Matrices $\textbf{C}$ and $\textbf{D}$ are of size $\textbf{C} \in \Re ^{m \times n}$ and $\textbf{D} \in \Re ^{m \times n}$ and vector $\vec{b} \in \Re ^{n}$. Vector  $\vec{c} \in \Re ^{m}$ sets the equality constraints and $d \in \Re ^{p}$ the inequality constraints of the system \citep{qp_theory}. There are two approaches for solving this optimization problem, by active set strategies or by interior point methods.
 
 Lets consider a discrete-time, time-invariant, linear system of the form:
 \begin{equation}
-x_{k+1} =  \textbf{A}x_{k} + \textbf{B}u_{k}
+\vec{x}_{k+1} =  \textbf{A}\vec{x}_{k} + \textbf{B}\vec{u}_{k}
 \end{equation} 
-where $x_{k} \in \Re^{n_{x}}$ is the system state, $u_{k} \in \Re ^{n_{u}}$, the inputs and $\textbf{A} \in \Re ^{n_{x} \times n_{x}}$  and $\textbf{B} \in \Re ^{n_{x} \times n_{u}}$ are fixed matrices. The constraints of input and state have to be guaranteed:
+where $\vec{x}_{k} \in \Re^{n_{x}}$ is the system state, $\vec{u}_{k} \in \Re ^{n_{u}}$, the inputs and $\textbf{A} \in \Re ^{n_{x} \times n_{x}}$  and $\textbf{B} \in \Re ^{n_{x} \times n_{u}}$ are fixed matrices. The constraints of input and state have to be guaranteed:
 \begin{equation}
-\underline{c} \leq \textbf{C}x_k \leq \overline{c}
+\underline{\vec{c}} \leq \textbf{C}\vec{x}_k \leq \overline{\vec{c}}
 \label{eq_c1}
 \end{equation} 
 \begin{equation}
-\underline{d} \leq \textbf{D}u_k \leq \overline{d}
+\underline{\vec{d}} \leq \textbf{D}\vec{u}_k \leq \overline{\vec{d}}
 \label{eq_c2}
 \end{equation} 
 According to \citet{qp_algorithm}, adapting equation \ref{eq:qp} to this system, the optimization problem the MPC solves is:
 \begin{equation}
-min\ \ x_{N}^{T}\ \textbf{P}x_N + \sum_{i=0}^{N-1} (x_{i}^{T}\ \textbf{Q}\ x_i + u_{i}^{T}\ \textbf{R}\ u_i)
+min\ \ \vec{x}_{N}^{T}\ \textbf{P}\vec{x}_N + \sum_{i=0}^{N-1} (x_{i}^{T}\ \textbf{Q}\ x_i + u_{i}^{T}\ \textbf{R}\ u_i)
 \end{equation} 
-subject to the constrains given by equations \ref{eq_c1} and \ref{eq_c2}. The initial state $x_0$ is given as input to the first iteration of the QP. As result, the required input vector $u_0$ is obtained and applied to the system. The state achieved after applying $u_0$ is given as input to the next optimization problem. The MPC successively solves parametric QP to obtain the required input sequence that lead to a desired system state.
+subject to the constrains given by equations \ref{eq_c1} and \ref{eq_c2}. The initial state $x_0$ is given as input to the first iteration of the QP. As result, the required input vector $u_0$ is obtained and applied to the system. The state achieved after applying $u_0$ is given as input to the next optimization problem. The MPC successively solves parametric QPs to obtain the required input sequence that lead to a desired system state.
 
 \citet{qp_algorithm} developed a strategy for the fast solution of QPs called \textit{online active set strategy}. They assume that the change in states between one QP and the next one is not big and therefore, the solution of the new QP is close to the solution of the old QP. This approach allows faster computations, that can be used in online applications of complex systems.
  
@@ -383,7 +383,7 @@ Since most applications require several nodes to control all the subsystems, it 
 \subsection{RViz}
 \label{subsec:rviz}
 
-RViz is a 3D visualization tool for ROS. RViz displays the sensor data and the robot's state information taken from ROS. Using RViz we can visualize the current state of the robot (figure \ref{fig:rviz}), visualize simulated trajectories, and display information from the sensors, such as 3D point-clouds from the Kinect or the image obtained by a camera.
+RViz is a 3D visualization tool for ROS. RViz displays the sensor data and the robot's state information taken from ROS. Using RViz, we can visualize the current state of the robot (figure \ref{fig:rviz}), visualize simulated trajectories, and display information from the sensors, such as 3D point-clouds from the Kinect or the image obtained by a camera.
 
 \begin{figure}[H]
 	\centering
@@ -394,9 +394,9 @@ RViz is a 3D visualization tool for ROS. RViz displays the sensor data and the r
 	\label{fig:rviz}
 \end{figure}
 
-RViz uses a \textit{fixed frame} as a static reference for the visualization, the default frame is  \texttt{$\backslash$world}. All the information that RViz receives is displayed with respect to this frame, including: robot's current state, location of objects in the environment, and data from sensors.
+RViz uses a \textit{fixed frame} as a static reference for the visualization, the default frame is  \texttt{$\backslash$world}. All the information that RViz receives is displayed with respect to this frame, including: the robot's current state, location of objects in the environment, and data from sensors.
 
-Figure \ref{fig:rviz} shows a simulation of the Boxy robot detecting several objects located on a table in front of it, the transformation frames (TF) of both end effectors (EEF) can also be seen.
+Figure \ref{fig:rviz} shows a simulation of the Boxy robot detecting several objects located on a table in front of it, the transformation frames (TF) of both end effectors (EEF) can be seen.
 
 \subsection{Giskard}
 \label{subsec:giskard}
@@ -464,7 +464,7 @@ The \textit{collision model} of Boxy contains simplified geometry of the robot, 
 \section{Robot Description}
 \label{sec:urdf}
 
-In oder to calculate the position and movements of the robot, all it's elements must be  represented in a way that the robot controller and the trajectory planner understands them. This implies models or descriptions where the geometry, movement ranges and kinematics are described. Such description is made with a Unified Robot Description Format (URDF).
+In oder to calculate the position and movements of a robot, all it's elements must be  represented in a way that the robot controller and the trajectory planner understands them. This implies models or descriptions where the geometry, movement ranges and kinematics are described. Such description is made with a Unified Robot Description Format (URDF).
 
 As the name implies, a URDF is a file used to describe a robot, it contains XML specifications of the robot's geometry, kinematics, inertial, and sensing properties. It is the native robot description format in ROS. The URDF loads meshes that contains the geometry of one or several robot links and describes it's relative position with respect to the previous link, it also specifies the type and range of movement it has.
 
